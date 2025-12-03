@@ -7,14 +7,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
-
+/**
+ * Key Entity - Required to unlock the door
+ */
 public class Key {
     private float x, y;
     private static final float SIZE = 25;
     private boolean collected;
     private Rectangle bounds;
     private Texture texture;
-    private float bobTimer;
+    private float bobTimer;  // For floating animation
     private boolean useTexture;
 
     public Key(float x, float y) {
@@ -24,6 +26,7 @@ public class Key {
         this.bounds = new Rectangle(x, y, SIZE, SIZE);
         this.bobTimer = 0;
 
+        // Try to load texture, fallback to shape rendering
         try {
             this.texture = new Texture("key.png");
             this.useTexture = true;

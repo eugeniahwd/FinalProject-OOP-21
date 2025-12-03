@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.finpro.managers.GameStateManager;
 
-
+/**
+ * Main Menu Screen
+ */
 public class MenuScreen implements Screen {
     private Game game;
     private OrthographicCamera camera;
@@ -67,13 +69,6 @@ public class MenuScreen implements Screen {
         // Instructions
         font.getData().setScale(1f);
         font.setColor(Color.CYAN);
-        font.draw(batch, "NEW FEATURES:", 520, 160);
-        font.getData().setScale(0.9f);
-        font.setColor(Color.WHITE);
-        font.draw(batch, "• Larger world to explore!", 480, 135);
-        font.draw(batch, "• Push boxes to create bridges", 450, 115);
-        font.draw(batch, "• Find keys to unlock the door", 450, 95);
-        font.draw(batch, "• More platforms, diamonds & obstacles!", 410, 75);
 
         // Controls reminder
         font.getData().setScale(0.8f);

@@ -3,21 +3,25 @@ package com.finpro.entities;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import com.finpro.Main;
 import com.finpro.states.*;
 
-
+/**
+ * Player class menggunakan STATE PATTERN - IMPROVED PHYSICS
+ */
 public class Player {
     public enum PlayerType { FIREGIRL, WATERBOY }
 
     private float x, y;
     private float velocityX, velocityY;
-    private static final float WIDTH = 40;
-    private static final float HEIGHT = 50;
+    private static final float WIDTH = 45;
+    private static final float HEIGHT = 55;
     private static final float SPEED = 220;
-    private static final float JUMP_FORCE = 500;
+    private static final float JUMP_FORCE = 450;
+    private static final float DOUBLE_JUMP_FORCE = 470;
     private static final float GRAVITY = -1100;
     private static final float MAX_FALL_SPEED = -600;
-    private static final float FRICTION = 0.85f;
+    private static final float FRICTION = 0.70f;
 
     private PlayerType type;
     private Rectangle bounds;
@@ -25,9 +29,16 @@ public class Player {
     private boolean isOnGround;
     private boolean isDead;
 
+    // Double jump mechanic
+    private boolean hasDoubleJump;
+    private int jumpCount;
+    private static final int MAX_JUMPS = 2;
+
+    // Coyote time
     private float coyoteTime = 0;
     private static final float COYOTE_TIME_MAX = 0.1f;
 
+    // STATE PATTERN
     private PlayerState currentState;
 
     public Player(float x, float y, PlayerType type) {
@@ -41,13 +52,15 @@ public class Player {
         this.velocityX = 0;
         this.velocityY = 0;
         this.coyoteTime = COYOTE_TIME_MAX;
+        this.jumpCount = 0;
+        this.hasDoubleJump = true;
 
         if (type == PlayerType.FIREGIRL) {
-            texture = new Texture("fireBoy.png");
-            System.out.println("FireBoy created at: " + x + ", " + y);
+            texture = new Texture("fireGirl.png");
+            System.out.println("FireGirl created at: " + x + ", " + y);
         } else {
-            texture = new Texture("waterGirl.png");
-            System.out.println("WaterGirl created at: " + x + ", " + y);
+            texture = new Texture("waterBoy.png");
+            System.out.println("WaterBoy created at: " + x + ", " + y);
         }
     }
 
@@ -58,10 +71,8 @@ public class Player {
     public void update(float delta) {
         if (isDead) return;
 
-        // Update state
         currentState.update(this, delta);
 
-        // Update coyote time
         if (isOnGround) {
             coyoteTime = COYOTE_TIME_MAX;
         } else if (coyoteTime > 0) {
@@ -70,27 +81,22 @@ public class Player {
 
         if (!isOnGround) {
             velocityY += GRAVITY * delta;
-
-            // Limit fall speed
             if (velocityY < MAX_FALL_SPEED) {
                 velocityY = MAX_FALL_SPEED;
             }
         }
 
-        // Apply velocity
         y += velocityY * delta;
         x += velocityX * delta;
 
-        // Keep player in bounds
+        // FIXED: Gunakan WORLD_WIDTH bukan 800
         if (x < 0) x = 0;
-        if (x > 800 - WIDTH) x = 800 - WIDTH;
+        if (x > Main.WORLD_WIDTH - WIDTH) x = Main.WORLD_WIDTH - WIDTH;
 
-        // Death if fall off screen
         if (y < -100) {
             die();
         }
 
-        // Update bounds
         bounds.setPosition(x, y);
     }
 
@@ -123,11 +129,20 @@ public class Player {
 
     public void jump() {
         if (isDead) return;
-        if (isOnGround || coyoteTime > 0) {
+
+        if (jumpCount == 0 && (isOnGround || coyoteTime > 0)) {
             velocityY = JUMP_FORCE;
             isOnGround = false;
             coyoteTime = 0;
+            jumpCount = 1;
             setState(new JumpingState());
+            System.out.println(type + " - Single Jump!");
+        }
+        else if (jumpCount == 1 && hasDoubleJump) {
+            velocityY = DOUBLE_JUMP_FORCE;
+            jumpCount = 2;
+            setState(new JumpingState());
+            System.out.println(type + " - DOUBLE Jump!");
         }
     }
 
@@ -136,6 +151,9 @@ public class Player {
         this.isOnGround = onGround;
 
         if (onGround) {
+            jumpCount = 0;
+            hasDoubleJump = true;
+
             if (wasInAir && velocityY < 0) {
                 velocityY = 0;
             }
@@ -149,7 +167,7 @@ public class Player {
     }
 
     public void die() {
-        if (isDead) return; // Prevent double death
+        if (isDead) return;
         isDead = true;
         velocityX = 0;
         velocityY = 0;
@@ -160,14 +178,17 @@ public class Player {
     }
 
     public void render(SpriteBatch batch) {
-        // Add slight transparency if dead
+        // FIXED: Selalu reset color
         if (isDead) {
             batch.setColor(1, 1, 1, 0.5f);
+        } else {
+            batch.setColor(1, 1, 1, 1);
         }
+
         batch.draw(texture, x, y, WIDTH, HEIGHT);
-        if (isDead) {
-            batch.setColor(1, 1, 1, 1); // Reset color
-        }
+
+        // CRITICAL: Reset color setelah draw
+        batch.setColor(1, 1, 1, 1);
     }
 
     // Getters and Setters
@@ -185,8 +206,11 @@ public class Player {
     }
     public float getVelocityY() { return velocityY; }
     public void setVelocityY(float vy) { this.velocityY = vy; }
+    public void setVelocityX(float vx) {this.velocityX = vx;}
     public boolean isOnGround() { return isOnGround; }
     public boolean isDead() { return isDead; }
+    public int getJumpCount() { return jumpCount; }
+    public boolean hasDoubleJump() { return hasDoubleJump; }
 
     public void dispose() {
         texture.dispose();

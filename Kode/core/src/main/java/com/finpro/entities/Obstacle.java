@@ -15,8 +15,8 @@ public class Obstacle {
     public Obstacle(float x, float y, ObstacleType type) {
         this.x = x;
         this.y = y;
-        this.width = 50;
-        this.height = 30;
+        this.width = 200;
+        this.height = 75;
         this.type = type;
         this.bounds = new Rectangle(x, y, width, height);
 

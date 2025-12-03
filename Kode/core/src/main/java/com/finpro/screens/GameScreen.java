@@ -126,13 +126,6 @@ public class GameScreen implements Screen {
             font.draw(uiBatch, "Door LOCKED - Find Keys!", 20, Gdx.graphics.getHeight() - 80);
         }
 
-        // Controls
-        font.setColor(Color.CYAN);
-        font.getData().setScale(0.9f);
-        font.draw(uiBatch, "WASD - FireGirl (Red) | Arrows - WaterBoy (Blue)", 20, Gdx.graphics.getHeight() - 120);
-        font.draw(uiBatch, "Push boxes to create bridges | Collect all diamonds | Find keys to unlock door!", 20, Gdx.graphics.getHeight() - 145);
-        font.draw(uiBatch, "RED dies in WATER | BLUE dies in LAVA", 20, Gdx.graphics.getHeight() - 170);
-        font.draw(uiBatch, "Press R to restart", 20, Gdx.graphics.getHeight() - 195);
 
         font.getData().setScale(1.2f);
         uiBatch.end();

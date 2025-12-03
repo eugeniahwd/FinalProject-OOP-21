@@ -2,7 +2,9 @@ package com.finpro.factories;
 
 import com.finpro.entities.*;
 
-
+/**
+ * FACTORY METHOD PATTERN
+ */
 public class EntityFactory {
 
     public static Player createFireGirl(float x, float y) {
@@ -25,13 +27,17 @@ public class EntityFactory {
         return new Box(x, y);
     }
 
-    // Updated - no type parameter needed
+    // BARU: Moving platform box
+    public static Box createMovingBox(float x, float y, float startX, float endX) {
+        return new Box(x, y, startX, endX);
+    }
+
     public static Door createDoor(float x, float y) {
         return new Door(x, y);
     }
 
-    public static Platform createPlatform(float x, float y, float width) {
-        return new Platform(x, y, width);
+    public static Platform createPlatform(float x, float y, float width, boolean isVertical) {
+        return new Platform(x, y, width, isVertical);
     }
 
     public static Key createKey(float x, float y) {

@@ -1,5 +1,6 @@
 package com.finpro.facade;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -11,6 +12,9 @@ import com.finpro.pools.DiamondPool;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FACADE PATTERN - With Safe Diamond Placement
+ */
 public class GameFacade {
     private Player fireGirl;
     private Player waterBoy;
@@ -26,7 +30,7 @@ public class GameFacade {
     private boolean gameOver;
     private int keysCollected;
     private int totalKeys;
-    private float spawnProtectionTimer; // Grace period at start
+    private float spawnProtectionTimer;
     private static final float SPAWN_PROTECTION_TIME = 0.5f;
 
     public GameFacade(int level) {
@@ -38,29 +42,25 @@ public class GameFacade {
         this.diamondPool = new DiamondPool();
         this.gameOver = false;
         this.keysCollected = 0;
-        this.spawnProtectionTimer = SPAWN_PROTECTION_TIME; // Start with protection
+        this.spawnProtectionTimer = SPAWN_PROTECTION_TIME;
 
         background = new Texture("background.png");
         initializeLevel();
     }
 
     private void initializeLevel() {
-        // Create ground FIRST - full width
-        platforms.add(EntityFactory.createPlatform(0, 30, Main.WORLD_WIDTH));
+        platforms.add(EntityFactory.createPlatform(0, 30, Main.WORLD_WIDTH, false));
 
-        // Level-specific setup
         switch (level) {
             case 1: setupEasyLevel(); break;
             case 2: setupMediumLevel(); break;
             case 3: setupHardLevel(); break;
         }
 
-        // Create players AFTER platforms (so they spawn safely)
         fireGirl = EntityFactory.createFireGirl(50, 80);
         waterBoy = EntityFactory.createWaterBoy(120, 80);
 
-        // Set them on ground immediately
-        fireGirl.setY(50); // Ground height (30) + platform height (20)
+        fireGirl.setY(50);
         waterBoy.setY(50);
         fireGirl.setOnGround(true);
         waterBoy.setOnGround(true);
@@ -69,254 +69,221 @@ public class GameFacade {
 
         System.out.println("Level " + level + " initialized!");
         System.out.println("Platforms: " + platforms.size());
+        System.out.println("Moving Boxes: " + boxes.stream().filter(Box::isMovingPlatform).count());
+        System.out.println("Diamonds: " + diamondPool.getInUse().size());
         System.out.println("Obstacles: " + obstacles.size());
-        System.out.println("Keys: " + keys.size());
     }
 
     private void setupEasyLevel() {
         // Lower platforms
-        platforms.add(EntityFactory.createPlatform(200, 150, 250));
-        platforms.add(EntityFactory.createPlatform(550, 180, 200));
-        platforms.add(EntityFactory.createPlatform(850, 150, 200));
-        platforms.add(EntityFactory.createPlatform(1150, 180, 250));
+        platforms.add(EntityFactory.createPlatform(200, 150, 200, true));
+        platforms.add(EntityFactory.createPlatform(650, 150, 400, false));
+        platforms.add(EntityFactory.createPlatform(1100, 150, 350, false));
 
         // Middle platforms
-        platforms.add(EntityFactory.createPlatform(100, 300, 200));
-        platforms.add(EntityFactory.createPlatform(400, 330, 250));
-        platforms.add(EntityFactory.createPlatform(750, 300, 200));
-        platforms.add(EntityFactory.createPlatform(1050, 330, 200));
-        platforms.add(EntityFactory.createPlatform(1350, 300, 200));
+        platforms.add(EntityFactory.createPlatform(70, 330, 150, false));
+        platforms.add(EntityFactory.createPlatform(700, 330, 150, false));
+        platforms.add(EntityFactory.createPlatform(1200, 330, 200, false));
 
         // Upper platforms
-        platforms.add(EntityFactory.createPlatform(250, 480, 200));
-        platforms.add(EntityFactory.createPlatform(600, 510, 250));
-        platforms.add(EntityFactory.createPlatform(950, 480, 200));
-        platforms.add(EntityFactory.createPlatform(1250, 510, 200));
+        platforms.add(EntityFactory.createPlatform(120, 500, 480, false));
+        platforms.add(EntityFactory.createPlatform(330, 520, 330, true));
+        platforms.add(EntityFactory.createPlatform(900, 570, 200, false));
+        platforms.add(EntityFactory.createPlatform(1300, 550, 150, false));
 
-        // Top platform for door
-        platforms.add(EntityFactory.createPlatform(700, 700, 200));
+        // Top platform
+        platforms.add(EntityFactory.createPlatform(700, 750, 200, false));
 
-        // Diamonds - distributed across the level
-        diamondPool.obtain(250, 175, Diamond.DiamondType.RED);
-        diamondPool.obtain(600, 205, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(900, 175, Diamond.DiamondType.RED);
-        diamondPool.obtain(1200, 205, Diamond.DiamondType.BLUE);
+        // MOVING BOXES
+        boxes.add(EntityFactory.createMovingBox(300, 330, 250, 650));
+        boxes.add(EntityFactory.createMovingBox(850, 500, 600, 850));
 
-        diamondPool.obtain(150, 325, Diamond.DiamondType.RED);
-        diamondPool.obtain(500, 355, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(800, 325, Diamond.DiamondType.RED);
-        diamondPool.obtain(1100, 355, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1400, 325, Diamond.DiamondType.RED);
+        // OBSTACLES FIRST - Placed strategically
+        // Ground level - spread out
+        obstacles.add(EntityFactory.createObstacle(550, 50, Obstacle.ObstacleType.FIRE));      // Far right on ground
+        obstacles.add(EntityFactory.createObstacle(900, 50, Obstacle.ObstacleType.WATER));     // Even further
 
-        diamondPool.obtain(300, 505, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(700, 535, Diamond.DiamondType.RED);
-        diamondPool.obtain(1000, 505, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1300, 535, Diamond.DiamondType.RED);
+        // Lower platforms - one per platform, far from edges
+        obstacles.add(EntityFactory.createObstacle(250, 180, Obstacle.ObstacleType.WATER));    // On platform 200
+        obstacles.add(EntityFactory.createObstacle(1150, 180, Obstacle.ObstacleType.FIRE));    // On platform 1100
 
-        // Obstacles
-        obstacles.add(EntityFactory.createObstacle(450, 50, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(700, 50, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(1000, 50, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(300, 180, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(950, 330, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(500, 510, Obstacle.ObstacleType.WATER));
+        // Middle level - sparse placement
+        obstacles.add(EntityFactory.createObstacle(1250, 360, Obstacle.ObstacleType.WATER));   // On platform 1200
 
-        // Movable boxes
-        boxes.add(EntityFactory.createBox(650, 80)); // Adjusted Y to sit on ground
-        boxes.add(EntityFactory.createBox(350, 180));
-        boxes.add(EntityFactory.createBox(1100, 80));
+        // DIAMONDS - Safe positions, away from obstacles
+        // Lower platforms - safe spots
+        diamondPool.obtain(120, 175, Diamond.DiamondType.RED);      // Left side of platform 200 (far from water at 250)
+        diamondPool.obtain(370, 175, Diamond.DiamondType.RED);      // Right side of platform 200
+        diamondPool.obtain(670, 185, Diamond.DiamondType.BLUE);     // Left side of platform 650 (safe)
+        diamondPool.obtain(820, 185, Diamond.DiamondType.BLUE);     // Right side of platform 650
+        diamondPool.obtain(1120, 175, Diamond.DiamondType.RED);     // Left edge platform 1100 (fire is at 1150)
 
-        // Keys
-        keys.add(EntityFactory.createKey(320, 505));
-        keys.add(EntityFactory.createKey(1300, 330));
+        // Middle platforms - safe spots
+        diamondPool.obtain(120, 355, Diamond.DiamondType.RED);      // Platform 100 (safe)
+        diamondPool.obtain(720, 375, Diamond.DiamondType.BLUE);     // Platform 700 (safe)
+        diamondPool.obtain(820, 375, Diamond.DiamondType.BLUE);     // Platform 700 right
+        diamondPool.obtain(1220, 355, Diamond.DiamondType.RED);     // Platform 1200 left (water is at 1250)
+        diamondPool.obtain(1370, 355, Diamond.DiamondType.RED);     // Platform 1200 right
 
-        // Door at the top
-        door = EntityFactory.createDoor(770, 730);
+        // Upper platforms - all safe
+        diamondPool.obtain(280, 575, Diamond.DiamondType.BLUE);     // Platform 250
+        diamondPool.obtain(420, 575, Diamond.DiamondType.BLUE);     // Platform 250 right
+        diamondPool.obtain(920, 595, Diamond.DiamondType.RED);      // Platform 900
+        diamondPool.obtain(1070, 595, Diamond.DiamondType.RED);     // Platform 900 right
+        diamondPool.obtain(1320, 575, Diamond.DiamondType.BLUE);    // Platform 1300
+
+        // Keys - safe positions
+        keys.add(EntityFactory.createKey(400, 575));
+        keys.add(EntityFactory.createKey(1360, 355));
+
+        door = EntityFactory.createDoor(770, 780);
     }
 
     private void setupMediumLevel() {
-        // Complex multi-level platforming
-        // Lower level
-        platforms.add(EntityFactory.createPlatform(250, 120, 180)); // Away from spawn
-        platforms.add(EntityFactory.createPlatform(500, 150, 150));
-        platforms.add(EntityFactory.createPlatform(720, 130, 180));
-        platforms.add(EntityFactory.createPlatform(970, 160, 150));
-        platforms.add(EntityFactory.createPlatform(1190, 140, 200));
-        platforms.add(EntityFactory.createPlatform(1450, 150, 130));
+        // Platform layers
+        platforms.add(EntityFactory.createPlatform(100, 120, 180, false));
+        platforms.add(EntityFactory.createPlatform(500, 150, 150, false));
+        platforms.add(EntityFactory.createPlatform(900, 130, 180, false));
+        platforms.add(EntityFactory.createPlatform(1300, 150, 200, false));
 
-        // Mid-low level
-        platforms.add(EntityFactory.createPlatform(120, 260, 160));
-        platforms.add(EntityFactory.createPlatform(350, 290, 180));
-        platforms.add(EntityFactory.createPlatform(600, 270, 150));
-        platforms.add(EntityFactory.createPlatform(820, 300, 170));
-        platforms.add(EntityFactory.createPlatform(1060, 280, 180));
-        platforms.add(EntityFactory.createPlatform(1310, 290, 150));
+        platforms.add(EntityFactory.createPlatform(150, 280, 160, false));
+        platforms.add(EntityFactory.createPlatform(600, 300, 150, false));
+        platforms.add(EntityFactory.createPlatform(1000, 280, 180, false));
+        platforms.add(EntityFactory.createPlatform(1400, 290, 150, false));
 
-        // Mid-high level
-        platforms.add(EntityFactory.createPlatform(200, 420, 150));
-        platforms.add(EntityFactory.createPlatform(450, 450, 200));
-        platforms.add(EntityFactory.createPlatform(730, 430, 160));
-        platforms.add(EntityFactory.createPlatform(980, 460, 180));
-        platforms.add(EntityFactory.createPlatform(1240, 440, 150));
-        platforms.add(EntityFactory.createPlatform(1460, 450, 120));
+        platforms.add(EntityFactory.createPlatform(200, 450, 150, false));
+        platforms.add(EntityFactory.createPlatform(700, 470, 160, false));
+        platforms.add(EntityFactory.createPlatform(1100, 460, 180, false));
 
-        // Upper level
-        platforms.add(EntityFactory.createPlatform(100, 590, 180));
-        platforms.add(EntityFactory.createPlatform(380, 620, 200));
-        platforms.add(EntityFactory.createPlatform(680, 600, 150));
-        platforms.add(EntityFactory.createPlatform(930, 630, 180));
-        platforms.add(EntityFactory.createPlatform(1200, 610, 200));
-        platforms.add(EntityFactory.createPlatform(1480, 620, 100));
+        platforms.add(EntityFactory.createPlatform(300, 620, 180, false));
+        platforms.add(EntityFactory.createPlatform(800, 640, 150, false));
+        platforms.add(EntityFactory.createPlatform(1200, 630, 200, false));
 
-        // Top platform for door
-        platforms.add(EntityFactory.createPlatform(700, 780, 200));
+        platforms.add(EntityFactory.createPlatform(700, 800, 200, false));
 
-        // Many diamonds
-        diamondPool.obtain(300, 145, Diamond.DiamondType.RED);
-        diamondPool.obtain(550, 175, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(770, 155, Diamond.DiamondType.RED);
-        diamondPool.obtain(1020, 185, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1240, 165, Diamond.DiamondType.RED);
-        diamondPool.obtain(1500, 175, Diamond.DiamondType.BLUE);
+        // Moving boxes
+        boxes.add(EntityFactory.createMovingBox(290, 180, 280, 450));
+        boxes.add(EntityFactory.createMovingBox(650, 200, 500, 850));
+        boxes.add(EntityFactory.createMovingBox(1090, 190, 900, 1250));
 
-        diamondPool.obtain(170, 285, Diamond.DiamondType.RED);
-        diamondPool.obtain(430, 315, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(650, 295, Diamond.DiamondType.RED);
-        diamondPool.obtain(890, 325, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1140, 305, Diamond.DiamondType.RED);
-        diamondPool.obtain(1360, 315, Diamond.DiamondType.BLUE);
+        boxes.add(EntityFactory.createMovingBox(310, 350, 150, 550));
+        boxes.add(EntityFactory.createMovingBox(750, 370, 600, 950));
+        boxes.add(EntityFactory.createMovingBox(1190, 360, 1000, 1350));
 
-        diamondPool.obtain(250, 445, Diamond.DiamondType.RED);
-        diamondPool.obtain(550, 475, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(780, 455, Diamond.DiamondType.RED);
-        diamondPool.obtain(1060, 485, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1290, 465, Diamond.DiamondType.RED);
+        boxes.add(EntityFactory.createMovingBox(350, 520, 200, 650));
+        boxes.add(EntityFactory.createMovingBox(850, 540, 700, 1050));
 
-        diamondPool.obtain(150, 615, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(480, 645, Diamond.DiamondType.RED);
-        diamondPool.obtain(730, 625, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1010, 655, Diamond.DiamondType.RED);
-        diamondPool.obtain(1300, 635, Diamond.DiamondType.BLUE);
+        // OBSTACLES - Strategic placement
+        // Ground level
+        obstacles.add(EntityFactory.createObstacle(600, 50, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1000, 50, Obstacle.ObstacleType.WATER));
 
-        // Obstacles on platforms - AWAY from spawn (x > 250)
-        obstacles.add(EntityFactory.createObstacle(400, 50, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(650, 50, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(900, 50, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(1150, 50, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(1380, 50, Obstacle.ObstacleType.FIRE));
+        // Lower platforms - center of platforms
+        obstacles.add(EntityFactory.createObstacle(540, 180, Obstacle.ObstacleType.WATER));    // Platform 500
+        obstacles.add(EntityFactory.createObstacle(950, 160, Obstacle.ObstacleType.FIRE));     // Platform 900
 
-        obstacles.add(EntityFactory.createObstacle(450, 150, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(920, 160, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(280, 290, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(750, 300, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(1190, 280, Obstacle.ObstacleType.WATER));
+        // Mid platforms
+        obstacles.add(EntityFactory.createObstacle(640, 330, Obstacle.ObstacleType.FIRE));     // Platform 600
+        obstacles.add(EntityFactory.createObstacle(1050, 310, Obstacle.ObstacleType.WATER));   // Platform 1000
 
-        obstacles.add(EntityFactory.createObstacle(360, 450, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(830, 460, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(1350, 440, Obstacle.ObstacleType.FIRE));
+        // Upper platforms
+        obstacles.add(EntityFactory.createObstacle(740, 500, Obstacle.ObstacleType.WATER));    // Platform 700
+        obstacles.add(EntityFactory.createObstacle(1140, 490, Obstacle.ObstacleType.FIRE));    // Platform 1100
 
-        // Movable boxes for puzzle solving
-        boxes.add(EntityFactory.createBox(400, 80));
-        boxes.add(EntityFactory.createBox(700, 180));
-        boxes.add(EntityFactory.createBox(500, 330));
-        boxes.add(EntityFactory.createBox(1000, 210));
-        boxes.add(EntityFactory.createBox(1300, 80));
+        // DIAMONDS - Safe positions away from obstacles
+        // Layer 1 - safe edges
+        diamondPool.obtain(120, 145, Diamond.DiamondType.RED);      // Platform 100 left
+        diamondPool.obtain(250, 145, Diamond.DiamondType.RED);      // Platform 100 right
+        diamondPool.obtain(510, 175, Diamond.DiamondType.BLUE);     // Platform 500 left (obstacle at 540)
+        diamondPool.obtain(920, 155, Diamond.DiamondType.RED);      // Platform 900 left (obstacle at 950)
+        diamondPool.obtain(1320, 175, Diamond.DiamondType.BLUE);    // Platform 1300 left
+        diamondPool.obtain(1470, 175, Diamond.DiamondType.BLUE);    // Platform 1300 right
 
-        // Keys
-        keys.add(EntityFactory.createKey(250, 445));
-        keys.add(EntityFactory.createKey(1010, 655));
-        keys.add(EntityFactory.createKey(480, 645));
+        // Layer 2 - safe edges
+        diamondPool.obtain(170, 305, Diamond.DiamondType.RED);      // Platform 150
+        diamondPool.obtain(280, 305, Diamond.DiamondType.RED);      // Platform 150 right
+        diamondPool.obtain(610, 325, Diamond.DiamondType.BLUE);     // Platform 600 left (obstacle at 640)
+        diamondPool.obtain(1020, 305, Diamond.DiamondType.RED);     // Platform 1000 left (obstacle at 1050)
+        diamondPool.obtain(1420, 315, Diamond.DiamondType.BLUE);    // Platform 1400
 
-        // Door
-        door = EntityFactory.createDoor(770, 810);
+        // Layer 3 - safe edges
+        diamondPool.obtain(220, 475, Diamond.DiamondType.BLUE);     // Platform 200
+        diamondPool.obtain(710, 495, Diamond.DiamondType.RED);      // Platform 700 left (obstacle at 740)
+        diamondPool.obtain(1120, 485, Diamond.DiamondType.BLUE);    // Platform 1100 left (obstacle at 1140)
+        diamondPool.obtain(1250, 485, Diamond.DiamondType.BLUE);    // Platform 1100 right
+
+        // Layer 4 - all safe
+        diamondPool.obtain(320, 645, Diamond.DiamondType.RED);      // Platform 300
+        diamondPool.obtain(450, 645, Diamond.DiamondType.RED);      // Platform 300 right
+        diamondPool.obtain(820, 665, Diamond.DiamondType.BLUE);     // Platform 800
+        diamondPool.obtain(1220, 655, Diamond.DiamondType.RED);     // Platform 1200
+        diamondPool.obtain(1370, 655, Diamond.DiamondType.RED);     // Platform 1200 right
+
+        // Keys - safe positions
+        keys.add(EntityFactory.createKey(320, 475));
+        keys.add(EntityFactory.createKey(820, 665));
+        keys.add(EntityFactory.createKey(1370, 305));
+
+        door = EntityFactory.createDoor(770, 830);
     }
 
     private void setupHardLevel() {
-        // Very complex layout with tight jumps
-        // Bottom scattered platforms - START AWAY from spawn
-        for (int i = 2; i < 10; i++) { // Start from i=2 to avoid spawn area
-            float x = 50 + i * 160;
-            float y = 120 + (i % 3) * 20;
-            float width = 100 + (i % 2) * 50;
-            platforms.add(EntityFactory.createPlatform(x, y, width));
-        }
+        // Many platform layers
+        platforms.add(EntityFactory.createPlatform(0, 200, 400, false));
 
-        // Second layer
-        for (int i = 1; i < 9; i++) {
-            float x = 100 + i * 170;
-            float y = 250 + (i % 3) * 25;
-            float width = 110 + (i % 2) * 40;
-            platforms.add(EntityFactory.createPlatform(x, y, width));
-        }
+        platforms.add(EntityFactory.createPlatform(480, 30, 110, true));
+        platforms.add(EntityFactory.createPlatform(500, 120, 100, false));
+        platforms.add(EntityFactory.createPlatform(600, 30, 110, true));
 
-        // Third layer
-        for (int i = 0; i < 8; i++) {
-            float x = 150 + i * 180;
-            float y = 390 + (i % 3) * 20;
-            float width = 120 + (i % 2) * 30;
-            platforms.add(EntityFactory.createPlatform(x, y, width));
-        }
+        platforms.add(EntityFactory.createPlatform(720, 30, 110, true));
+        platforms.add(EntityFactory.createPlatform(740, 120, 100, false));
+        platforms.add(EntityFactory.createPlatform(840, 30, 110, true));
 
-        // Fourth layer
-        for (int i = 0; i < 7; i++) {
-            float x = 200 + i * 200;
-            float y = 530 + (i % 2) * 30;
-            float width = 130;
-            platforms.add(EntityFactory.createPlatform(x, y, width));
-        }
+        platforms.add(EntityFactory.createPlatform(960, 30, 110, true));
+        platforms.add(EntityFactory.createPlatform(980, 120, 100, false));
+        platforms.add(EntityFactory.createPlatform(1080, 30, 110, true));
 
-        // Fifth layer
-        for (int i = 0; i < 6; i++) {
-            float x = 250 + i * 220;
-            float y = 670 + (i % 2) * 20;
-            float width = 140;
-            platforms.add(EntityFactory.createPlatform(x, y, width));
-        }
 
-        // Top platform for door
-        platforms.add(EntityFactory.createPlatform(700, 820, 200));
+        // obstacles
+        obstacles.add(EntityFactory.createObstacle(570, 23, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(810, 23, Obstacle.ObstacleType.WATER));
 
-        // Massive amount of diamonds
-        for (int i = 3; i < 30; i++) {
-            float x = 80 + (i % 10) * 150;
-            float y = 145 + (i / 10) * 140;
-            Diamond.DiamondType type = (i % 2 == 0) ? Diamond.DiamondType.RED : Diamond.DiamondType.BLUE;
-            diamondPool.obtain(x, y, type);
-        }
+        obstacles.add(EntityFactory.createObstacle(1040, 23, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1200, 23, Obstacle.ObstacleType.WATER));
 
-        // Many obstacles - AWAY from spawn
-        for (int i = 3; i < 20; i++) { // Start from i=3
-            float x = 100 + (i % 8) * 180;
-            float y = 50 + (i / 8) * 140;
-            Obstacle.ObstacleType type = (i % 2 == 0) ? Obstacle.ObstacleType.FIRE : Obstacle.ObstacleType.WATER;
-            obstacles.add(EntityFactory.createObstacle(x, y, type));
-        }
+        obstacles.add(EntityFactory.createObstacle(1360, 23, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1440, 23, Obstacle.ObstacleType.WATER));
 
-        // Many boxes for complex puzzles
-        boxes.add(EntityFactory.createBox(500, 80));
-        boxes.add(EntityFactory.createBox(700, 80));
-        boxes.add(EntityFactory.createBox(900, 80));
-        boxes.add(EntityFactory.createBox(1200, 80));
-        boxes.add(EntityFactory.createBox(400, 180));
-        boxes.add(EntityFactory.createBox(800, 180));
-        boxes.add(EntityFactory.createBox(1100, 180));
-        boxes.add(EntityFactory.createBox(500, 300));
-        boxes.add(EntityFactory.createBox(1000, 300));
+        // yang ada diamond merah 2
+        obstacles.add(EntityFactory.createObstacle(1520, 23, Obstacle.ObstacleType.FIRE));
+        // yang ada diamond biru 2
+        obstacles.add(EntityFactory.createObstacle(1600, 23, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(1680, 23, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1540, 23, Obstacle.ObstacleType.WATER));
 
-        // Multiple keys
-        keys.add(EntityFactory.createKey(500, 420));
-        keys.add(EntityFactory.createKey(800, 560));
-        keys.add(EntityFactory.createKey(1200, 420));
-        keys.add(EntityFactory.createKey(600, 700));
+        // diamonds
+        //ground:
+        diamondPool.obtain(1200, 100, Diamond.DiamondType.RED);
+        diamondPool.obtain(1400, 100, Diamond.DiamondType.RED);
+        diamondPool.obtain(1250, 100, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(1450, 100, Diamond.DiamondType.BLUE);
 
-        // Door
-        door = EntityFactory.createDoor(770, 850);
+
+
+        // Keys
+        // keys 1 (ground)
+        keys.add(EntityFactory.createKey(1550, 100));
+
+        keys.add(EntityFactory.createKey(750, 625));
+        keys.add(EntityFactory.createKey(410, 625));
+        keys.add(EntityFactory.createKey(1210, 485));
+
+        door = EntityFactory.createDoor(770, 830);
     }
 
     public void updateGame(float delta) {
         if (gameOver) return;
 
-        // Update spawn protection timer
         if (spawnProtectionTimer > 0) {
             spawnProtectionTimer -= delta;
         }
@@ -324,21 +291,18 @@ public class GameFacade {
         fireGirl.update(delta);
         waterBoy.update(delta);
 
-        // Update boxes
         for (Box box : boxes) {
             box.update(delta);
         }
 
-        // Update keys
         for (Key key : keys) {
             key.update(delta);
         }
 
         handleCollisions();
 
-        // Check if players died (only after spawn protection)
         if (spawnProtectionTimer <= 0 && (fireGirl.isDead() || waterBoy.isDead())) {
-            System.out.println("Player death detected in updateGame");
+            System.out.println("Player death detected!");
             gameOver = true;
         }
     }
@@ -358,7 +322,6 @@ public class GameFacade {
 
         door.render(shapeRenderer);
 
-        // Render keys with shape renderer (backup if texture not found)
         for (Key key : keys) {
             key.renderShape(shapeRenderer);
         }
@@ -373,7 +336,6 @@ public class GameFacade {
             diamond.render(batch);
         }
 
-        // Render keys with texture if available
         for (Key key : keys) {
             key.render(batch);
         }
@@ -402,6 +364,7 @@ public class GameFacade {
             Rectangle platBounds = platform.getBounds();
 
             if (pBounds.overlaps(platBounds)) {
+                // COLLISION DARI ATAS (Landing)
                 if (player.getVelocityY() <= 0) {
                     float playerBottom = pBounds.y;
                     float platformTop = platBounds.y + platBounds.height;
@@ -413,15 +376,42 @@ public class GameFacade {
                             player.setY(platformTop);
                             player.setOnGround(true);
                             onPlatform = true;
-                            break;
+                            continue; // Skip horizontal check jika sudah landing
                         }
                     }
-                } else if (player.getVelocityY() > 0) {
+                }
+                // COLLISION DARI BAWAH (Head bump)
+                else if (player.getVelocityY() > 0) {
                     float playerTop = pBounds.y + pBounds.height;
                     float platformBottom = platBounds.y;
 
                     if (playerTop >= platformBottom - 2 && playerTop <= platformBottom + 15) {
                         player.setVelocityY(-50);
+                        continue; // Skip horizontal check
+                    }
+                }
+
+                // ===== TAMBAHAN: HORIZONTAL COLLISION =====
+                // Cek collision dari kiri atau kanan
+                float playerCenterY = pBounds.y + pBounds.height / 2;
+                float platformCenterY = platBounds.y + platBounds.height / 2;
+
+                // Hanya cek horizontal jika player tidak sedang landing/head bump
+                if (Math.abs(playerCenterY - platformCenterY) < platBounds.height / 2) {
+                    float playerRight = pBounds.x + pBounds.width;
+                    float playerLeft = pBounds.x;
+                    float platformRight = platBounds.x + platBounds.width;
+                    float platformLeft = platBounds.x;
+
+                    // Collision dari KIRI (player nabrak sisi kiri platform)
+                    if (playerRight > platformLeft && playerLeft < platformLeft) {
+                        player.setX(platformLeft - pBounds.width);
+                        player.setVelocityX(0); // Stop horizontal movement
+                    }
+                    // Collision dari KANAN (player nabrak sisi kanan platform)
+                    else if (playerLeft < platformRight && playerRight > platformRight) {
+                        player.setX(platformRight);
+                        player.setVelocityX(0); // Stop horizontal movement
                     }
                 }
             }
@@ -431,9 +421,12 @@ public class GameFacade {
             player.setOnGround(false);
         }
     }
-
     private void handleBoxCollisions() {
         for (Box box : boxes) {
+            if (box.isMovingPlatform()) {
+                continue;
+            }
+
             boolean onPlatform = false;
             Rectangle boxBounds = box.getBounds();
 
@@ -441,6 +434,7 @@ public class GameFacade {
                 Rectangle platBounds = platform.getBounds();
 
                 if (boxBounds.overlaps(platBounds)) {
+                    // ===== VERTICAL COLLISION (sudah ada) =====
                     if (box.getVelocityY() <= 0) {
                         float boxBottom = boxBounds.y;
                         float platformTop = platBounds.y + platBounds.height;
@@ -449,7 +443,7 @@ public class GameFacade {
                             box.setY(platformTop);
                             box.setOnGround(true);
                             onPlatform = true;
-                            break;
+                            continue; // Skip horizontal check jika sudah landing
                         }
                     } else if (box.getVelocityY() > 0) {
                         float boxTop = boxBounds.y + boxBounds.height;
@@ -457,6 +451,30 @@ public class GameFacade {
 
                         if (boxTop >= platformBottom - 2 && boxTop <= platformBottom + 15) {
                             box.setVelocityY(-50);
+                            continue; // Skip horizontal check
+                        }
+                    }
+
+                    // ===== HORIZONTAL COLLISION (BARU) =====
+                    float boxCenterY = boxBounds.y + boxBounds.height / 2;
+                    float platformCenterY = platBounds.y + platBounds.height / 2;
+
+                    // Hanya cek horizontal jika box tidak sedang landing/bouncing
+                    if (Math.abs(boxCenterY - platformCenterY) < platBounds.height / 2) {
+                        float boxRight = boxBounds.x + boxBounds.width;
+                        float boxLeft = boxBounds.x;
+                        float platformRight = platBounds.x + platBounds.width;
+                        float platformLeft = platBounds.x;
+
+                        // Collision dari KIRI (box nabrak sisi kiri platform)
+                        if (boxRight > platformLeft && boxLeft < platformLeft) {
+                            box.setX(platformLeft - boxBounds.width);
+                            // Tidak perlu setVelocityX karena regular box tidak bergerak horizontal
+                        }
+                        // Collision dari KANAN (box nabrak sisi kanan platform)
+                        else if (boxLeft < platformRight && boxRight > platformRight) {
+                            box.setX(platformRight);
+                            // Tidak perlu setVelocityX karena regular box tidak bergerak horizontal
                         }
                     }
                 }
@@ -480,27 +498,43 @@ public class GameFacade {
             Rectangle boxBounds = box.getBounds();
 
             if (pBounds.overlaps(boxBounds)) {
-                // Player landing on box
-                if (player.getVelocityY() <= 0) {
-                    float playerBottom = pBounds.y;
-                    float boxTop = boxBounds.y + boxBounds.height;
+                // Hitung overlap di setiap sisi
+                float overlapLeft = (pBounds.x + pBounds.width) - boxBounds.x;
+                float overlapRight = (boxBounds.x + boxBounds.width) - pBounds.x;
+                float overlapTop = (pBounds.y + pBounds.height) - boxBounds.y;
+                float overlapBottom = (boxBounds.y + boxBounds.height) - pBounds.y;
 
-                    if (playerBottom >= boxTop - 15 && playerBottom <= boxTop + 2) {
-                        player.setY(boxTop);
-                        player.setOnGround(true);
+                // Cari overlap terkecil (arah tabrakan yang paling baru terjadi)
+                float minOverlap = Math.min(
+                    Math.min(overlapLeft, overlapRight),
+                    Math.min(overlapTop, overlapBottom)
+                );
+
+                // ===== COLLISION DARI ATAS (Player landing di box) =====
+                if (minOverlap == overlapBottom && player.getVelocityY() <= 0) {
+                    player.setY(boxBounds.y + boxBounds.height);
+                    player.setOnGround(true);
+
+                    // Jika box bergerak, player ikut bergerak
+                    if (box.isMovingPlatform()) {
+                        float deltaX = box.getVelocityX() * Gdx.graphics.getDeltaTime();
+                        player.setX(player.getX() + deltaX);
                     }
                 }
-
-                // Player pushing box horizontally
-                float playerCenterX = pBounds.x + pBounds.width / 2;
-                float boxCenterX = boxBounds.x + boxBounds.width / 2;
-
-                if (Math.abs(pBounds.y - boxBounds.y) < 20) {
-                    if (playerCenterX < boxCenterX) {
-                        box.pushRight();
-                    } else {
-                        box.pushLeft();
-                    }
+                // ===== COLLISION DARI BAWAH (Player nabrak bawah box) =====
+                else if (minOverlap == overlapTop && player.getVelocityY() > 0) {
+                    player.setY(boxBounds.y - pBounds.height);
+                    player.setVelocityY(-50); // Mental ke bawah
+                }
+                // ===== COLLISION DARI KIRI (Player nabrak box dari kiri) =====
+                else if (minOverlap == overlapLeft) {
+                    player.setX(boxBounds.x - pBounds.width);
+                    player.setVelocityX(0); // Stop gerakan horizontal
+                }
+                // ===== COLLISION DARI KANAN (Player nabrak box dari kanan) =====
+                else if (minOverlap == overlapRight) {
+                    player.setX(boxBounds.x + boxBounds.width);
+                    player.setVelocityX(0); // Stop gerakan horizontal
                 }
             }
         }
@@ -542,7 +576,6 @@ public class GameFacade {
                     key.collect();
                     keysCollected++;
 
-                    // Unlock door when all keys collected
                     if (keysCollected >= totalKeys) {
                         door.unlock();
                     }
@@ -553,34 +586,33 @@ public class GameFacade {
 
     private void handleObstacleCollisions() {
         if (spawnProtectionTimer > 0) return;
-
-        if (fireGirl.isDead() || waterBoy.isDead()) return; // Already dead
+        if (fireGirl.isDead() || waterBoy.isDead()) return;
 
         for (Obstacle obstacle : obstacles) {
             Rectangle fireGirlHitbox = new Rectangle(
-                fireGirl.getBounds().x + 8,
-                fireGirl.getBounds().y + 8,
-                fireGirl.getBounds().width - 16,
-                fireGirl.getBounds().height - 16
+                fireGirl.getBounds().x + 10,
+                fireGirl.getBounds().y + 5,
+                fireGirl.getBounds().width - 20,
+                fireGirl.getBounds().height - 10
             );
 
             Rectangle waterBoyHitbox = new Rectangle(
-                waterBoy.getBounds().x + 8,
-                waterBoy.getBounds().y + 8,
-                waterBoy.getBounds().width - 16,
-                waterBoy.getBounds().height - 16
+                waterBoy.getBounds().x + 10,
+                waterBoy.getBounds().y + 5,
+                waterBoy.getBounds().width - 20,
+                waterBoy.getBounds().height - 10
             );
 
             if (obstacle.getType() == Obstacle.ObstacleType.WATER &&
                 fireGirlHitbox.overlaps(obstacle.getBounds())) {
                 fireGirl.die();
-                System.out.println("FireGirl touched WATER! Game Over!");
+                System.out.println("FireBoy touched WATER! Game Over!");
             }
 
             if (obstacle.getType() == Obstacle.ObstacleType.FIRE &&
                 waterBoyHitbox.overlaps(obstacle.getBounds())) {
                 waterBoy.die();
-                System.out.println("WaterBoy touched LAVA! Game Over!");
+                System.out.println("WaterGirl touched LAVA! Game Over!");
             }
         }
     }

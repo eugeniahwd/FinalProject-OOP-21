@@ -2,14 +2,11 @@ package com.finpro.states;
 
 import com.finpro.entities.Player;
 
-// Jumping State
 public class JumpingState implements PlayerState {
     @Override
     public void update(Player player, float delta) {
-        // Efek saat melompat
-        if (player.getVelocityY() <= 0) {
-            player.setState(new IdleState());
-        }
+        // FIXED: Only transition to idle when falling and near ground
+        // Don't automatically transition - let physics handle it
     }
 
     @Override

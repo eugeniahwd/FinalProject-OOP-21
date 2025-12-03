@@ -11,6 +11,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.finpro.managers.GameStateManager;
 
+/**
+ * Game Over Screen
+ */
 public class GameOverScreen implements Screen {
     private Game game;
     private OrthographicCamera camera;
@@ -62,19 +65,6 @@ public class GameOverScreen implements Screen {
         font.draw(batch, "Press R to Retry Level " + currentLevel, 410, 320);
         font.draw(batch, "Press M for Main Menu", 440, 280);
         font.draw(batch, "Press ESC to Exit", 470, 240);
-
-        // Tips
-        font.getData().setScale(1.2f);
-        font.setColor(Color.CYAN);
-        font.draw(batch, "REMEMBER:", 550, 170);
-        font.getData().setScale(1f);
-        font.setColor(Color.RED);
-        font.draw(batch, "• FireGirl (Red) dies in WATER", 450, 140);
-        font.setColor(Color.BLUE);
-        font.draw(batch, "• WaterBoy (Blue) dies in LAVA", 450, 115);
-        font.setColor(Color.GREEN);
-        font.draw(batch, "• Push boxes to create safe paths", 440, 90);
-        font.draw(batch, "• Find all keys to unlock the door", 435, 65);
 
         batch.end();
 
