@@ -12,9 +12,8 @@ import com.finpro.pools.DiamondPool;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * FACADE PATTERN - With Safe Diamond Placement
- */
+
+
 public class GameFacade {
     private Player fireGirl;
     private Player waterBoy;
@@ -72,6 +71,19 @@ public class GameFacade {
         System.out.println("Moving Boxes: " + boxes.stream().filter(Box::isMovingPlatform).count());
         System.out.println("Diamonds: " + diamondPool.getInUse().size());
         System.out.println("Obstacles: " + obstacles.size());
+
+        System.out.println("=== DEBUG OBSTACLE SIZES ===");
+        for (int i = 0; i < obstacles.size(); i++) {
+            Rectangle bounds = obstacles.get(i).getBounds();
+            System.out.println("Obstacle " + i + ": " +
+                "Type=" + obstacles.get(i).getType() + ", " +
+                "Position=(" + bounds.x + "," + bounds.y + "), " +
+                "Size=" + bounds.width + "x" + bounds.height);
+        }
+
+        // Debug player initial positions
+        System.out.println("FireGirl initial: (" + fireGirl.getX() + "," + fireGirl.getY() + ")");
+        System.out.println("WaterBoy initial: (" + waterBoy.getX() + "," + waterBoy.getY() + ")");
     }
 
     private void setupEasyLevel() {
@@ -229,8 +241,6 @@ public class GameFacade {
 
     private void setupHardLevel() {
         // Many platform layers
-        platforms.add(EntityFactory.createPlatform(0, 200, 400, false));
-
         platforms.add(EntityFactory.createPlatform(480, 30, 110, true));
         platforms.add(EntityFactory.createPlatform(500, 120, 100, false));
         platforms.add(EntityFactory.createPlatform(600, 30, 110, true));
@@ -243,40 +253,54 @@ public class GameFacade {
         platforms.add(EntityFactory.createPlatform(980, 120, 100, false));
         platforms.add(EntityFactory.createPlatform(1080, 30, 110, true));
 
+        // platform layer 2
+        platforms.add(EntityFactory.createPlatform(1070, 330, 400, false));
+        platforms.add(EntityFactory.createPlatform(1070, 350, 100, true));
+        platforms.add(EntityFactory.createPlatform(690, 450, 400, false));
+
+        // platform layer 3
+        platforms.add(EntityFactory.createPlatform(0, 400, 600, false));
+        platforms.add(EntityFactory.createPlatform(100, 580, 650, false));
+        platforms.add(EntityFactory.createPlatform(1050, 650, 550, false));
+
 
         // obstacles
-        obstacles.add(EntityFactory.createObstacle(570, 23, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(810, 23, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(570, 10, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(810, 10, Obstacle.ObstacleType.WATER));
 
-        obstacles.add(EntityFactory.createObstacle(1040, 23, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(1200, 23, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(1045, 10, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1200, 10, Obstacle.ObstacleType.WATER));
 
-        obstacles.add(EntityFactory.createObstacle(1360, 23, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(1440, 23, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(1360, 10, Obstacle.ObstacleType.FIRE));
 
-        // yang ada diamond merah 2
-        obstacles.add(EntityFactory.createObstacle(1520, 23, Obstacle.ObstacleType.FIRE));
-        // yang ada diamond biru 2
-        obstacles.add(EntityFactory.createObstacle(1600, 23, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(1680, 23, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(1540, 23, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(550, 360, Obstacle.ObstacleType.FIRE));
+
+        obstacles.add(EntityFactory.createObstacle(350, 380, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(450, 380, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(150, 380, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(250, 380, Obstacle.ObstacleType.WATER));
+
 
         // diamonds
         //ground:
         diamondPool.obtain(1200, 100, Diamond.DiamondType.RED);
-        diamondPool.obtain(1400, 100, Diamond.DiamondType.RED);
         diamondPool.obtain(1250, 100, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1450, 100, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(1370, 100, Diamond.DiamondType.RED);
+        diamondPool.obtain(1500, 100, Diamond.DiamondType.BLUE);
 
-
+        // boxes
+        boxes.add(EntityFactory.createMovingBox(1200, 170, 1350, 1500));
+        boxes.add(EntityFactory.createMovingBox(650, 700, 650, 1000));
 
         // Keys
         // keys 1 (ground)
         keys.add(EntityFactory.createKey(1550, 100));
 
-        keys.add(EntityFactory.createKey(750, 625));
-        keys.add(EntityFactory.createKey(410, 625));
         keys.add(EntityFactory.createKey(1210, 485));
+
+        keys.add(EntityFactory.createKey(550, 725));
+        keys.add(EntityFactory.createKey(250, 725));
+
 
         door = EntityFactory.createDoor(770, 830);
     }
@@ -308,43 +332,46 @@ public class GameFacade {
     }
 
     public void renderGame(SpriteBatch batch, ShapeRenderer shapeRenderer) {
+
+        // BACKGROUND (sprite)
         batch.begin();
         batch.draw(background, 0, 0, Main.WORLD_WIDTH, Main.WORLD_HEIGHT);
         batch.end();
 
-        for (Platform platform : platforms) {
-            platform.render(shapeRenderer);
-        }
+        // ===== FILLED SHAPES =====
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        for (Box box : boxes) {
-            box.render(shapeRenderer);
-        }
+        for (Platform platform : platforms) platform.render(shapeRenderer);
+        for (Box box : boxes) box.render(shapeRenderer);
 
         door.render(shapeRenderer);
+        door.renderHandle(shapeRenderer);
 
-        for (Key key : keys) {
-            key.renderShape(shapeRenderer);
-        }
+        for (Key key : keys) key.renderShape(shapeRenderer);
 
+        shapeRenderer.end();
+
+        // ===== LINE SHAPES (outlines) =====
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+        for (Box box : boxes) box.renderOutline(shapeRenderer);
+        door.renderLine(shapeRenderer);
+
+        shapeRenderer.end();
+
+        // ===== SPRITES =====
         batch.begin();
 
-        for (Obstacle obstacle : obstacles) {
-            obstacle.render(batch);
-        }
-
-        for (Diamond diamond : diamondPool.getInUse()) {
-            diamond.render(batch);
-        }
-
-        for (Key key : keys) {
-            key.render(batch);
-        }
+        for (Obstacle obstacle : obstacles) obstacle.render(batch);
+        for (Diamond diamond : diamondPool.getInUse()) diamond.render(batch);
+        for (Key key : keys) key.render(batch);
 
         fireGirl.render(batch);
         waterBoy.render(batch);
 
         batch.end();
     }
+
 
     private void handleCollisions() {
         handlePlayerPlatformCollisions(fireGirl);

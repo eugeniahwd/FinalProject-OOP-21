@@ -33,17 +33,13 @@ public class Platform {
     }
 
     public void render(ShapeRenderer renderer) {
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
         renderer.setColor(Color.valueOf("8B4513"));
         renderer.rect(x, y, width, height);
 
-        // Add outline for better visibility
-        renderer.end();
-        renderer.begin(ShapeRenderer.ShapeType.Line);
         renderer.setColor(Color.valueOf("654321"));
         renderer.rect(x, y, width, height);
-        renderer.end();
     }
+
 
     public Rectangle getBounds() {
         return bounds;

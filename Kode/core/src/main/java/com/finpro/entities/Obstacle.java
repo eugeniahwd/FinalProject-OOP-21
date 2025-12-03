@@ -5,38 +5,71 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Obstacle {
-    public enum ObstacleType {FIRE, WATER}
+    public enum ObstacleType { FIRE, WATER }
 
-    private float x, y, width, height;
-    private ObstacleType type;
-    private Rectangle bounds;
+    private Rectangle visualBounds;    // Untuk rendering (1090x1080, tapi discale)
+    private Rectangle collisionBounds; // Untuk collision (lebih kecil)
     private Texture texture;
+    private ObstacleType type;
+    private float visualScale;         // Skala untuk visual
 
     public Obstacle(float x, float y, ObstacleType type) {
-        this.x = x;
-        this.y = y;
-        this.width = 200;
-        this.height = 75;
         this.type = type;
-        this.bounds = new Rectangle(x, y, width, height);
 
-        if (type == ObstacleType.FIRE) {
-            texture = new Texture("lava.png");
-        } else {
-            texture = new Texture("water.png");
-        }
+        String texturePath = (type == ObstacleType.FIRE) ?
+            "lava.png" : "water.png";
+        this.texture = new Texture(texturePath);
+
+        // 1. VISUAL BOUNDS (untuk rendering)
+        // Skala kecil untuk visual, tapi posisi Y tetap sesuai yang diinginkan
+        this.visualScale = 0.1f; // 10% dari asli (coba 0.1f dulu)
+        float visualWidth = texture.getWidth() * visualScale;
+        float visualHeight = texture.getHeight() * visualScale;
+
+        // Posisi visual: tetap di (x, y) seperti yang sudah diatur
+        this.visualBounds = new Rectangle(x, y, visualWidth, visualHeight);
+
+        // 2. COLLISION BOUNDS (untuk deteksi tabrakan)
+        // Lebih kecil dari visual, dan bisa diatur offset-nya
+        float collisionWidth = 60f;    // Lebar collision
+        float collisionHeight = 30f;   // Tinggi collision
+
+        // Pusatkan collision di tengah visual
+        float collisionX = x + (visualWidth - collisionWidth) / 2;
+        float collisionY = y + (visualHeight - collisionHeight) / 2;
+
+        this.collisionBounds = new Rectangle(collisionX, collisionY,
+            collisionWidth, collisionHeight);
+
+        System.out.println("Obstacle created - Visual: (" + x + "," + y +
+            ") size " + visualWidth + "x" + visualHeight +
+            " | Collision: (" + collisionX + "," + collisionY +
+            ") size " + collisionWidth + "x" + collisionHeight);
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(texture, x, y, width, height);
+        // Render dengan skala visual
+        batch.draw(texture,
+            visualBounds.x, visualBounds.y,
+            visualBounds.width, visualBounds.height);
+    }
+
+    // Untuk collision detection
+    public Rectangle getBounds() {
+        return collisionBounds;
+    }
+
+    // Untuk debug rendering
+    public Rectangle getVisualBounds() {
+        return visualBounds;
     }
 
     public ObstacleType getType() {
         return type;
     }
 
-    public Rectangle getBounds() {
-        return bounds;
+    public Texture getTexture() {
+        return texture;
     }
 
     public void dispose() {

@@ -19,8 +19,7 @@ public class Door {
     }
 
     public void render(ShapeRenderer renderer) {
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
-
+        // Main door body
         if (locked) {
             renderer.setColor(Color.valueOf("5D4037"));
         } else {
@@ -37,38 +36,32 @@ public class Door {
 
         // Vertical center line
         renderer.rectLine(x + WIDTH/2, y + 5, x + WIDTH/2, y + HEIGHT - 5, 3);
+    }
 
-        renderer.end();
-
+    public void renderLine(ShapeRenderer renderer) {
         // Door frame
-        renderer.begin(ShapeRenderer.ShapeType.Line);
-        renderer.setColor(Color.valueOf("3E2723")); // Very dark brown
+        renderer.setColor(Color.valueOf("3E2723"));
         renderer.rect(x, y, WIDTH, HEIGHT);
-        renderer.end();
+    }
 
+    public void renderHandle(ShapeRenderer renderer) {
         // Door handle
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
         renderer.setColor(Color.GOLD);
         float handleX = x + WIDTH - 12;
         float handleY = y + HEIGHT / 2;
         renderer.circle(handleX, handleY, 4);
-        renderer.end();
 
         // Lock indicator
         if (locked) {
-            renderer.begin(ShapeRenderer.ShapeType.Filled);
             renderer.setColor(Color.RED);
             renderer.circle(x + WIDTH/2, y + HEIGHT - 15, 6);
 
             // Keyhole
             renderer.setColor(Color.valueOf("2C1810"));
             renderer.circle(x + WIDTH/2, y + HEIGHT - 15, 3);
-            renderer.end();
         } else {
-            renderer.begin(ShapeRenderer.ShapeType.Filled);
             renderer.setColor(Color.GREEN);
             renderer.circle(x + WIDTH/2, y + HEIGHT - 15, 6);
-            renderer.end();
         }
     }
 

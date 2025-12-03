@@ -54,7 +54,6 @@ public class Key {
     public void renderShape(ShapeRenderer renderer) {
         if (!collected && !useTexture) {
             float bobOffset = (float) Math.sin(bobTimer) * 5;
-            renderer.begin(ShapeRenderer.ShapeType.Filled);
 
             // Draw key shape
             renderer.setColor(Color.GOLD);
@@ -65,8 +64,6 @@ public class Key {
             // Key teeth
             renderer.rect(x + SIZE/2 - 6, y + bobOffset, 4, 6);
             renderer.rect(x + SIZE/2 + 2, y + bobOffset, 4, 4);
-
-            renderer.end();
         }
     }
 

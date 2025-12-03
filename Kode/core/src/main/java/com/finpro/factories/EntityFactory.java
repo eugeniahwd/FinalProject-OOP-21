@@ -2,9 +2,6 @@ package com.finpro.factories;
 
 import com.finpro.entities.*;
 
-/**
- * FACTORY METHOD PATTERN
- */
 public class EntityFactory {
 
     public static Player createFireGirl(float x, float y) {
@@ -27,7 +24,6 @@ public class EntityFactory {
         return new Box(x, y);
     }
 
-    // BARU: Moving platform box
     public static Box createMovingBox(float x, float y, float startX, float endX) {
         return new Box(x, y, startX, endX);
     }
@@ -43,4 +39,5 @@ public class EntityFactory {
     public static Key createKey(float x, float y) {
         return new Key(x, y);
     }
+
 }

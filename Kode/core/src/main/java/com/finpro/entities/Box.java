@@ -83,7 +83,7 @@ public class Box {
     }
 
     public void render(ShapeRenderer renderer) {
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        // HAPUS LINE INI: renderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // Orange untuk moving platform
         if (isMovingPlatform) {
@@ -128,18 +128,15 @@ public class Box {
                 );
             }
         }
+    }
 
-        renderer.end();
-
-        // Outline
-        renderer.begin(ShapeRenderer.ShapeType.Line);
+    public void renderOutline(ShapeRenderer renderer) {
         if (isMovingPlatform) {
             renderer.setColor(Color.valueOf("E65100"));
         } else {
             renderer.setColor(Color.valueOf("3E2723"));
         }
         renderer.rect(x, y, SIZE, SIZE);
-        renderer.end();
     }
 
     public Rectangle getBounds() { return bounds; }
