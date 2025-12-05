@@ -88,67 +88,58 @@ public class GameFacade {
 
     private void setupEasyLevel() {
         // Lower platforms
-        platforms.add(EntityFactory.createPlatform(200, 150, 200, true));
-        platforms.add(EntityFactory.createPlatform(650, 150, 400, false));
-        platforms.add(EntityFactory.createPlatform(1100, 150, 350, false));
+        platforms.add(EntityFactory.createPlatform(200, 250, 100, true));
+        platforms.add(EntityFactory.createPlatform(200, 250, 200, false));
+        platforms.add(EntityFactory.createPlatform(620, 190, 400, false));
+        platforms.add(EntityFactory.createPlatform(1200, 190, 200, false));
 
         // Middle platforms
         platforms.add(EntityFactory.createPlatform(70, 330, 150, false));
-        platforms.add(EntityFactory.createPlatform(700, 330, 150, false));
-        platforms.add(EntityFactory.createPlatform(1200, 330, 200, false));
+        platforms.add(EntityFactory.createPlatform(700, 400, 200, false));
 
         // Upper platforms
-        platforms.add(EntityFactory.createPlatform(120, 500, 480, false));
-        platforms.add(EntityFactory.createPlatform(330, 520, 330, true));
+        platforms.add(EntityFactory.createPlatform(170, 500, 340, false));
+        platforms.add(EntityFactory.createPlatform(330, 520, 220, true));
         platforms.add(EntityFactory.createPlatform(900, 570, 200, false));
-        platforms.add(EntityFactory.createPlatform(1300, 550, 150, false));
+        platforms.add(EntityFactory.createPlatform(500, 600, 200, false));
 
         // Top platform
         platforms.add(EntityFactory.createPlatform(700, 750, 200, false));
 
         // MOVING BOXES
         boxes.add(EntityFactory.createMovingBox(300, 330, 250, 650));
-        boxes.add(EntityFactory.createMovingBox(850, 500, 600, 850));
 
         // OBSTACLES FIRST - Placed strategically
         // Ground level - spread out
-        obstacles.add(EntityFactory.createObstacle(550, 50, Obstacle.ObstacleType.FIRE));      // Far right on ground
-        obstacles.add(EntityFactory.createObstacle(900, 50, Obstacle.ObstacleType.WATER));     // Even further
+        obstacles.add(EntityFactory.createObstacle(550, 9, Obstacle.ObstacleType.FIRE));      // Far right on ground
+        obstacles.add(EntityFactory.createObstacle(900, 9, Obstacle.ObstacleType.WATER));     // Even further
 
         // Lower platforms - one per platform, far from edges
-        obstacles.add(EntityFactory.createObstacle(250, 180, Obstacle.ObstacleType.WATER));    // On platform 200
-        obstacles.add(EntityFactory.createObstacle(1150, 180, Obstacle.ObstacleType.FIRE));    // On platform 1100
+        obstacles.add(EntityFactory.createObstacle(725, 169, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(210, 229, Obstacle.ObstacleType.WATER));
 
-        // Middle level - sparse placement
-        obstacles.add(EntityFactory.createObstacle(1250, 360, Obstacle.ObstacleType.WATER));   // On platform 1200
+        obstacles.add(EntityFactory.createObstacle(444, 579, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(965, 549, Obstacle.ObstacleType.WATER));
+
 
         // DIAMONDS - Safe positions, away from obstacles
         // Lower platforms - safe spots
-        diamondPool.obtain(120, 175, Diamond.DiamondType.RED);      // Left side of platform 200 (far from water at 250)
-        diamondPool.obtain(370, 175, Diamond.DiamondType.RED);      // Right side of platform 200
-        diamondPool.obtain(670, 185, Diamond.DiamondType.BLUE);     // Left side of platform 650 (safe)
-        diamondPool.obtain(820, 185, Diamond.DiamondType.BLUE);     // Right side of platform 650
-        diamondPool.obtain(1120, 175, Diamond.DiamondType.RED);     // Left edge platform 1100 (fire is at 1150)
+        diamondPool.obtain(630, 150, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(980, 150, Diamond.DiamondType.RED);
 
         // Middle platforms - safe spots
-        diamondPool.obtain(120, 355, Diamond.DiamondType.RED);      // Platform 100 (safe)
-        diamondPool.obtain(720, 375, Diamond.DiamondType.BLUE);     // Platform 700 (safe)
-        diamondPool.obtain(820, 375, Diamond.DiamondType.BLUE);     // Platform 700 right
-        diamondPool.obtain(1220, 355, Diamond.DiamondType.RED);     // Platform 1200 left (water is at 1250)
-        diamondPool.obtain(1370, 355, Diamond.DiamondType.RED);     // Platform 1200 right
+        diamondPool.obtain(100, 430, Diamond.DiamondType.RED);      // Platform 100 (safe)
+        diamondPool.obtain(805, 320, Diamond.DiamondType.BLUE);     // Platform 700 right
 
         // Upper platforms - all safe
-        diamondPool.obtain(280, 575, Diamond.DiamondType.BLUE);     // Platform 250
-        diamondPool.obtain(420, 575, Diamond.DiamondType.BLUE);     // Platform 250 right
-        diamondPool.obtain(920, 595, Diamond.DiamondType.RED);      // Platform 900
-        diamondPool.obtain(1070, 595, Diamond.DiamondType.RED);     // Platform 900 right
-        diamondPool.obtain(1320, 575, Diamond.DiamondType.BLUE);    // Platform 1300
+        diamondPool.obtain(620, 700, Diamond.DiamondType.BLUE);     // Platform 250 right
+        diamondPool.obtain(940, 670, Diamond.DiamondType.RED);      // Platform 900
 
         // Keys - safe positions
-        keys.add(EntityFactory.createKey(400, 575));
-        keys.add(EntityFactory.createKey(1360, 355));
+        keys.add(EntityFactory.createKey(250, 575));
+        keys.add(EntityFactory.createKey(1280, 270));
 
-        door = EntityFactory.createDoor(770, 780);
+        door = EntityFactory.createDoor(770, 771);
     }
 
     private void setupMediumLevel() {
