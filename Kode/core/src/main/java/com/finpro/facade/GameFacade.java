@@ -292,8 +292,11 @@ public class GameFacade {
         boxes.add(EntityFactory.createMovingBox(1200, 170, 1350, 1500));
         boxes.add(EntityFactory.createMovingBox(650, 700, 650, 1000));
 
+        boxes.add(EntityFactory.createVerticalMovingBox(30, 150, 150, 300));
+
         // Keys
         // keys 1 (ground)
+        keys.add(EntityFactory.createKey(35, 370));
         keys.add(EntityFactory.createKey(1550, 100));
 
         keys.add(EntityFactory.createKey(1210, 485));
@@ -323,7 +326,7 @@ public class GameFacade {
             key.update(delta);
         }
 
-        handleCollisions();
+        handleCollisions();  // Di sini movement box akan diterapkan
 
         if (spawnProtectionTimer <= 0 && (fireGirl.isDead() || waterBoy.isDead())) {
             System.out.println("Player death detected!");
@@ -335,7 +338,7 @@ public class GameFacade {
 
         // BACKGROUND (sprite)
         batch.begin();
-        batch.draw(background, 0, 0, Main.WORLD_WIDTH, Main.WORLD_HEIGHT);
+        batch.draw(background, 0, 330, Main.WORLD_WIDTH, Main.WORLD_HEIGHT);
         batch.end();
 
         // ===== FILLED SHAPES =====
@@ -520,49 +523,76 @@ public class GameFacade {
 
     private void handlePlayerBoxInteraction(Player player) {
         Rectangle pBounds = player.getBounds();
+        boolean foundBoxToStandOn = false;
 
         for (Box box : boxes) {
             Rectangle boxBounds = box.getBounds();
 
             if (pBounds.overlaps(boxBounds)) {
-                // Hitung overlap di setiap sisi
                 float overlapLeft = (pBounds.x + pBounds.width) - boxBounds.x;
                 float overlapRight = (boxBounds.x + boxBounds.width) - pBounds.x;
                 float overlapTop = (pBounds.y + pBounds.height) - boxBounds.y;
                 float overlapBottom = (boxBounds.y + boxBounds.height) - pBounds.y;
 
-                // Cari overlap terkecil (arah tabrakan yang paling baru terjadi)
                 float minOverlap = Math.min(
                     Math.min(overlapLeft, overlapRight),
                     Math.min(overlapTop, overlapBottom)
                 );
 
-                // ===== COLLISION DARI ATAS (Player landing di box) =====
+                // Landing di box
                 if (minOverlap == overlapBottom && player.getVelocityY() <= 0) {
                     player.setY(boxBounds.y + boxBounds.height);
                     player.setOnGround(true);
 
-                    // Jika box bergerak, player ikut bergerak
+                    // LANGSUNG terapkan movement box ke player
                     if (box.isMovingPlatform()) {
-                        float deltaX = box.getVelocityX() * Gdx.graphics.getDeltaTime();
-                        player.setX(player.getX() + deltaX);
+                        float deltaTime = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
+
+                        if (box.isVertical()) {
+                            // Ikut gerakan VERTICAL
+                            float deltaY = box.getVelocityY() * deltaTime;
+                            player.setY(player.getY() + deltaY);
+                        } else {
+                            // Ikut gerakan HORIZONTAL
+                            float deltaX = box.getVelocityX() * deltaTime;
+                            player.setX(player.getX() + deltaX);
+                        }
                     }
+
+                    foundBoxToStandOn = true;
                 }
-                // ===== COLLISION DARI BAWAH (Player nabrak bawah box) =====
+                // Head bump
                 else if (minOverlap == overlapTop && player.getVelocityY() > 0) {
                     player.setY(boxBounds.y - pBounds.height);
-                    player.setVelocityY(-50); // Mental ke bawah
+                    player.setVelocityY(-50);
                 }
-                // ===== COLLISION DARI KIRI (Player nabrak box dari kiri) =====
+                // Collision horizontal
                 else if (minOverlap == overlapLeft) {
                     player.setX(boxBounds.x - pBounds.width);
-                    player.setVelocityX(0); // Stop gerakan horizontal
+                    player.setVelocityX(0);
                 }
-                // ===== COLLISION DARI KANAN (Player nabrak box dari kanan) =====
                 else if (minOverlap == overlapRight) {
                     player.setX(boxBounds.x + boxBounds.width);
-                    player.setVelocityX(0); // Stop gerakan horizontal
+                    player.setVelocityX(0);
                 }
+            }
+        }
+    }
+
+
+    // Method baru: Update posisi player berdasarkan box yang dinaiki
+    private void updatePlayerOnMovingBox(Player player, float delta) {
+        Box box = player.getStandingOnBox();
+
+        if (box != null && box.isMovingPlatform()) {
+            if (box.isVertical()) {
+                // Ikut gerakan VERTICAL
+                float deltaY = box.getVelocityY() * delta;
+                player.setY(player.getY() + deltaY);
+            } else {
+                // Ikut gerakan HORIZONTAL
+                float deltaX = box.getVelocityX() * delta;
+                player.setX(player.getX() + deltaX);
             }
         }
     }

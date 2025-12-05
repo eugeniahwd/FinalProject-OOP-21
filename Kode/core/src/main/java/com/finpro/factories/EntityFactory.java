@@ -28,6 +28,10 @@ public class EntityFactory {
         return new Box(x, y, startX, endX);
     }
 
+    public static Box createVerticalMovingBox(float x, float y, float startY, float endY) {
+        return new Box(x, y, startY, endY, true);
+    }
+
     public static Door createDoor(float x, float y) {
         return new Door(x, y);
     }

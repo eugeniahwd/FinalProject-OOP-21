@@ -28,6 +28,7 @@ public class Player {
     private Texture texture;
     private boolean isOnGround;
     private boolean isDead;
+    private Box standingOnBox = null;
 
     // Double jump mechanic
     private boolean hasDoubleJump;
@@ -175,6 +176,14 @@ public class Player {
 
         String playerName = (type == PlayerType.FIREGIRL) ? "FireGirl" : "WaterBoy";
         System.out.println(playerName + " died at position: " + x + ", " + y);
+    }
+
+    public void setStandingOnBox(Box box) {
+        this.standingOnBox = box;
+    }
+
+    public Box getStandingOnBox() {
+        return standingOnBox;
     }
 
     public void render(SpriteBatch batch) {
