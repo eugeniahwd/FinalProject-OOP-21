@@ -1,6 +1,5 @@
 package com.finpro.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -11,37 +10,41 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector3;
+
 import com.finpro.Main;
 import com.finpro.facade.GameFacade;
-import com.finpro.managers.GameStateManager;
 
 public class GameScreen implements Screen {
-    private Game game;
+    private Main game;  // FIXED: Changed from Game to Main
     private OrthographicCamera camera;
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
     private SpriteBatch batch;
-    private SpriteBatch uiBatch; // Separate batch for UI
+    private SpriteBatch uiBatch;
 
     private GameFacade gameFacade;
     private int level;
     private boolean levelCompleteTriggered;
 
-    public GameScreen(Game game, int level) {
+    private String player1Username;
+    private String player2Username;
+
+    // FIXED: Changed parameter type from Game to Main
+    public GameScreen(Main game, int level, String player1Username, String player2Username) {
         this.game = game;
         this.level = level;
         this.levelCompleteTriggered = false;
+        this.player1Username = player1Username;
+        this.player2Username = player2Username;
 
-        // Camera for game world
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 1280, 720); // Viewport size
+        camera.setToOrtho(false, 1280, 720);
 
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
         font.getData().setScale(1.2f);
         batch = new SpriteBatch();
-        uiBatch = new SpriteBatch(); // UI always in screen space
+        uiBatch = new SpriteBatch();
 
         gameFacade = new GameFacade(level);
     }
@@ -51,34 +54,25 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Handle input
         handleInput();
-
-        // Update game
         gameFacade.updateGame(delta);
-
-        // Update camera to follow players
         updateCamera();
 
         camera.update();
         shapeRenderer.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
 
-        // Render game world
         gameFacade.renderGame(batch, shapeRenderer);
-
-        // Render UI (fixed to screen)
         renderUI();
 
-        // Check game over
         if (gameFacade.isGameOver()) {
-            game.setScreen(new GameOverScreen(game, level));
+            game.setScreen(new GameOverScreen(game, level, player1Username, player2Username));
         }
 
-        // Check level complete
+        // FIXED: Pass Main instead of Game
         if (!levelCompleteTriggered && gameFacade.checkLevelComplete()) {
             levelCompleteTriggered = true;
-            GameStateManager.getInstance().nextLevel();
+            game.setScreen(new VictoryScreen(game, gameFacade, player1Username, player2Username));
         }
     }
 
@@ -89,8 +83,8 @@ public class GameScreen implements Screen {
         float fireGirlY = gameFacade.getFireGirl().getY();
         float waterBoyY = gameFacade.getWaterBoy().getY();
 
-        float targetX = (fireGirlX + waterBoyX) / 2 + 20; // +20 for character width
-        float targetY = (fireGirlY + waterBoyY) / 2 + 25; // +25 for character height
+        float targetX = (fireGirlX + waterBoyX) / 2 + 20;
+        float targetY = (fireGirlY + waterBoyY) / 2 + 25;
 
         // Smooth camera movement
         float lerpSpeed = 0.1f;
@@ -126,7 +120,6 @@ public class GameScreen implements Screen {
             font.draw(uiBatch, "Door LOCKED - Find Keys!", 20, Gdx.graphics.getHeight() - 80);
         }
 
-
         font.getData().setScale(1.2f);
         uiBatch.end();
     }
@@ -160,11 +153,19 @@ public class GameScreen implements Screen {
 
         // Quick restart
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            game.setScreen(new GameScreen(game, level));
+            // Use GameStateManager for restart
+            com.finpro.managers.GameStateManager gsm = com.finpro.managers.GameStateManager.getInstance();
+            if (gsm.hasActiveSession()) {
+                gsm.startLevel(level);
+            } else {
+                // Fallback if session lost
+                game.setScreen(new GameScreen(game, level, player1Username, player2Username));
+            }
         }
 
         // Back to menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            com.finpro.managers.GameStateManager.getInstance().resetSession();
             game.setScreen(new MenuScreen(game));
         }
     }

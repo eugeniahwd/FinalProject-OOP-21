@@ -30,7 +30,7 @@ public class Key {
         try {
             this.texture = new Texture("key.png");
             this.useTexture = true;
-            System.out.println("Key texture loaded successfully");
+            System.out.println("Key texture loaded");
         } catch (Exception e) {
             System.out.println("Key texture not found, using shape renderer");
             this.useTexture = false;

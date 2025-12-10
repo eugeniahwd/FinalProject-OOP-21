@@ -6,9 +6,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.finpro.Main;
 import com.finpro.states.*;
 
-/**
- * Player class menggunakan STATE PATTERN - IMPROVED PHYSICS
- */
 public class Player {
     public enum PlayerType { FIREGIRL, WATERBOY }
 
@@ -90,7 +87,6 @@ public class Player {
         y += velocityY * delta;
         x += velocityX * delta;
 
-        // FIXED: Gunakan WORLD_WIDTH bukan 800
         if (x < 0) x = 0;
         if (x > Main.WORLD_WIDTH - WIDTH) x = Main.WORLD_WIDTH - WIDTH;
 

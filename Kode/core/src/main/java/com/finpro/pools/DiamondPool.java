@@ -4,11 +4,6 @@ import com.finpro.entities.Diamond;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * OBJECT POOL PATTERN
- * Menggunakan pool untuk recycle diamond objects
- * Menghindari garbage collection yang berlebihan
- */
 public class DiamondPool {
     private List<Diamond> available;
     private List<Diamond> inUse;

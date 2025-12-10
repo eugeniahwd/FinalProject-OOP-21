@@ -1,6 +1,5 @@
 package com.finpro.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -9,22 +8,24 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.finpro.managers.GameStateManager;
+import com.finpro.Main;
 
-/**
- * Game Over Screen
- */
 public class GameOverScreen implements Screen {
-    private Game game;
+    private Main game;  // FIXED: Changed from Game to Main
     private OrthographicCamera camera;
     private BitmapFont font;
     private SpriteBatch batch;
     private int currentLevel;
     private float timer;
+    private String player1Username;
+    private String player2Username;
 
-    public GameOverScreen(Game game, int level) {
+    // FIXED: Changed parameter type from Game to Main
+    public GameOverScreen(Main game, int level, String p1, String p2) {
         this.game = game;
         this.currentLevel = level;
+        this.player1Username = p1;
+        this.player2Username = p2;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1280, 720);
@@ -68,11 +69,19 @@ public class GameOverScreen implements Screen {
 
         batch.end();
 
-        // Handle input
+        // Handle input - Use GameStateManager for retry
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            GameStateManager.getInstance().startLevel(currentLevel);
+            // Retry current level using GameStateManager
+            com.finpro.managers.GameStateManager gsm = com.finpro.managers.GameStateManager.getInstance();
+            if (gsm.hasActiveSession()) {
+                gsm.startLevel(currentLevel);
+            } else {
+                // Fallback if session lost
+                game.setScreen(new GameScreen(game, currentLevel, player1Username, player2Username));
+            }
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            com.finpro.managers.GameStateManager.getInstance().resetSession();
             game.setScreen(new MenuScreen(game));
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

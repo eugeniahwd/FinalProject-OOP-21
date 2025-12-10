@@ -1,6 +1,5 @@
 package com.finpro.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -8,19 +7,21 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.finpro.Main;
 import com.finpro.managers.GameStateManager;
 
 /**
  * Main Menu Screen
  */
 public class MenuScreen implements Screen {
-    private Game game;
+    private Main game;  // FIXED: Changed from Game to Main
     private OrthographicCamera camera;
     private BitmapFont font;
     private SpriteBatch batch;
     private float timer;
 
-    public MenuScreen(Game game) {
+    // FIXED: Changed parameter type from Game to Main
+    public MenuScreen(Main game) {
         this.game = game;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1280, 720);
@@ -28,6 +29,9 @@ public class MenuScreen implements Screen {
         font.getData().setScale(2);
         batch = new SpriteBatch();
         timer = 0;
+
+        // ADDED: Reset session when returning to menu
+        GameStateManager.getInstance().resetSession();
     }
 
     @Override
@@ -79,15 +83,15 @@ public class MenuScreen implements Screen {
 
         font.getData().setScale(2f);
 
-        // Handle input
+        // Handle input - Go to UsernameInputScreen instead of directly to game
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.NUM_1)) {
-            GameStateManager.getInstance().startLevel(1);
+            game.setScreen(new UsernameInputScreen(game, 1));
         }
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.NUM_2)) {
-            GameStateManager.getInstance().startLevel(2);
+            game.setScreen(new UsernameInputScreen(game, 2));
         }
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.NUM_3)) {
-            GameStateManager.getInstance().startLevel(3);
+            game.setScreen(new UsernameInputScreen(game, 3));
         }
         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.ESCAPE)) {
             Gdx.app.exit();

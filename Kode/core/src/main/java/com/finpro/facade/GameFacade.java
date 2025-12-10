@@ -29,6 +29,11 @@ public class GameFacade {
     private boolean gameOver;
     private int keysCollected;
     private int totalKeys;
+    private int fireGirlRedDiamonds = 0;
+    private int waterBoyBlueDiamonds = 0;
+    private int fireGirlScore = 0;
+    private int waterBoyScore = 0;
+    private float gameTime = 0;
     private float spawnProtectionTimer;
     private static final float SPAWN_PROTECTION_TIME = 0.5f;
 
@@ -71,15 +76,6 @@ public class GameFacade {
         System.out.println("Moving Boxes: " + boxes.stream().filter(Box::isMovingPlatform).count());
         System.out.println("Diamonds: " + diamondPool.getInUse().size());
         System.out.println("Obstacles: " + obstacles.size());
-
-        System.out.println("=== DEBUG OBSTACLE SIZES ===");
-        for (int i = 0; i < obstacles.size(); i++) {
-            Rectangle bounds = obstacles.get(i).getBounds();
-            System.out.println("Obstacle " + i + ": " +
-                "Type=" + obstacles.get(i).getType() + ", " +
-                "Position=(" + bounds.x + "," + bounds.y + "), " +
-                "Size=" + bounds.width + "x" + bounds.height);
-        }
 
         // Debug player initial positions
         System.out.println("FireGirl initial: (" + fireGirl.getX() + "," + fireGirl.getY() + ")");
@@ -301,6 +297,8 @@ public class GameFacade {
 
     public void updateGame(float delta) {
         if (gameOver) return;
+
+        gameTime += delta;
 
         if (spawnProtectionTimer > 0) {
             spawnProtectionTimer -= delta;
@@ -608,9 +606,20 @@ public class GameFacade {
                 if (diamond.getType() == Diamond.DiamondType.RED &&
                     expandedFireGirl.overlaps(diamond.getBounds())) {
                     diamond.collect();
+
+                    // TAMBAHAN: Track diamonds dan score
+                    fireGirlRedDiamonds++;
+                    fireGirlScore += 100;
+                    System.out.println("FireGirl: " + fireGirlRedDiamonds + " red diamonds, Score: " + fireGirlScore);
+
                 } else if (diamond.getType() == Diamond.DiamondType.BLUE &&
                     expandedWaterBoy.overlaps(diamond.getBounds())) {
                     diamond.collect();
+
+                    // TAMBAHAN: Track diamonds dan score
+                    waterBoyBlueDiamonds++;
+                    waterBoyScore += 100;
+                    System.out.println("WaterBoy: " + waterBoyBlueDiamonds + " blue diamonds, Score: " + waterBoyScore);
                 }
             }
         }
@@ -668,18 +677,10 @@ public class GameFacade {
     public boolean checkLevelComplete() {
         if (gameOver || door.isLocked()) return false;
 
-        boolean allDiamondsCollected = true;
-        for (Diamond diamond : diamondPool.getInUse()) {
-            if (!diamond.isCollected()) {
-                allDiamondsCollected = false;
-                break;
-            }
-        }
-
         boolean bothAtDoor = fireGirl.getBounds().overlaps(door.getBounds()) &&
             waterBoy.getBounds().overlaps(door.getBounds());
 
-        return allDiamondsCollected && bothAtDoor;
+        return bothAtDoor;
     }
 
     public Player getFireGirl() { return fireGirl; }
@@ -688,6 +689,11 @@ public class GameFacade {
     public int getKeysCollected() { return keysCollected; }
     public int getTotalKeys() { return totalKeys; }
     public boolean isDoorUnlocked() { return !door.isLocked(); }
+    public int getFireGirlRedDiamonds() {return fireGirlRedDiamonds;}
+    public int getWaterBoyBlueDiamonds() {return waterBoyBlueDiamonds;}
+    public int getFireGirlScore() {return fireGirlScore;}
+    public int getWaterBoyScore() {return waterBoyScore;}
+    public int getGameTimeSeconds() {return (int) gameTime;}
 
     public void dispose() {
         diamondPool.freeAll();

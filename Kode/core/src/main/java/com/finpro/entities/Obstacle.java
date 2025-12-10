@@ -41,10 +41,6 @@ public class Obstacle {
         this.collisionBounds = new Rectangle(collisionX, collisionY,
             collisionWidth, collisionHeight);
 
-        System.out.println("Obstacle created - Visual: (" + x + "," + y +
-            ") size " + visualWidth + "x" + visualHeight +
-            " | Collision: (" + collisionX + "," + collisionY +
-            ") size " + collisionWidth + "x" + collisionHeight);
     }
 
     public void render(SpriteBatch batch) {
