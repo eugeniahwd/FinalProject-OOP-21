@@ -1,4 +1,5 @@
-package com.finpro.backend;
+// ===== BackendApplication.java =====
+package com.finpro.backend_oop;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
