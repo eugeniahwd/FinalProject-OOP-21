@@ -83,9 +83,7 @@ public class PlayerService {
         return playerRepository.findTop10ByOrderByHighScoreDesc();
     }
 
-    public List<Player> getLeaderboardByWins() {
-        return playerRepository.findTop10ByOrderByTotalWinsDesc();
-    }
+    // DIHAPUS: getLeaderboardByWins() - tidak relevan untuk teamwork game
 
     public List<Player> getLeaderboardByDiamonds() {
         return playerRepository.findTop10ByTotalDiamonds();
@@ -95,10 +93,10 @@ public class PlayerService {
         return playerRepository.findTop10ByProgress();
     }
 
-    // Update stats after game
+    // Update stats after game - TEAMWORK version
     @Transactional
     public void updatePlayerStatsAfterGame(UUID playerId, Integer score, Integer redDiamonds,
-                                           Integer blueDiamonds, boolean isWinner, Integer level) {
+                                           Integer blueDiamonds, Integer level) {
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new RuntimeException("Player tidak ditemukan: " + playerId));
 
@@ -114,9 +112,7 @@ public class PlayerService {
 
         player.incrementGamesPlayed();
 
-        if (isWinner) {
-            player.incrementWins();
-        }
+        // DIHAPUS: tidak ada update wins karena ini teamwork
 
         if (level != null) {
             player.updateLevelsCompleted(level);

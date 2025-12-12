@@ -29,8 +29,7 @@ public class Player {
     @Column(name = "total_games_played")
     private Integer totalGamesPlayed = 0;
 
-    @Column(name = "total_wins")
-    private Integer totalWins = 0;
+    // DIHAPUS: totalWins - karena game ini teamwork, bukan kompetisi
 
     @Column(name = "levels_completed")
     private Integer levelsCompleted = 0;
@@ -75,9 +74,6 @@ public class Player {
         this.totalGamesPlayed = totalGamesPlayed;
     }
 
-    public Integer getTotalWins() { return totalWins; }
-    public void setTotalWins(Integer totalWins) { this.totalWins = totalWins; }
-
     public Integer getLevelsCompleted() { return levelsCompleted; }
     public void setLevelsCompleted(Integer levelsCompleted) {
         this.levelsCompleted = levelsCompleted;
@@ -108,9 +104,7 @@ public class Player {
         this.totalGamesPlayed++;
     }
 
-    public void incrementWins() {
-        this.totalWins++;
-    }
+    // DIHAPUS: incrementWins() - tidak diperlukan lagi
 
     public void updateLevelsCompleted(Integer level) {
         if (level > this.levelsCompleted) {

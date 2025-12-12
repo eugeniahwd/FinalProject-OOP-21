@@ -3,7 +3,6 @@ package com.finpro.backend.repository;
 import com.finpro.backend.model.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,9 +15,8 @@ public interface PlayerRepository extends JpaRepository<Player, UUID> {
     Optional<Player> findByUsername(String username);
     boolean existsByUsername(String username);
 
-    // Leaderboards
     List<Player> findTop10ByOrderByHighScoreDesc();
-    List<Player> findTop10ByOrderByTotalWinsDesc();
+
 
     @Query("SELECT p FROM Player p ORDER BY (p.totalRedDiamonds + p.totalBlueDiamonds) DESC")
     List<Player> findTop10ByTotalDiamonds();

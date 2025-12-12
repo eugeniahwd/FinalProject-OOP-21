@@ -54,18 +54,12 @@ public class GameSessionService {
         session.finishGame();
         GameSession savedSession = sessionRepository.save(session);
 
-        // Update player stats
-        boolean player1Wins = session.getWinnerId() != null &&
-                session.getWinnerId().equals(session.getPlayer1Id());
-        boolean player2Wins = session.getWinnerId() != null &&
-                session.getWinnerId().equals(session.getPlayer2Id());
-
+        // Update player stats - TEAMWORK version (tanpa isWinner)
         playerService.updatePlayerStatsAfterGame(
                 session.getPlayer1Id(),
                 session.getPlayer1Score(),
                 session.getPlayer1RedDiamonds(),
                 0,
-                player1Wins,
                 session.getLevelNumber()
         );
 
@@ -74,7 +68,6 @@ public class GameSessionService {
                 session.getPlayer2Score(),
                 0,
                 session.getPlayer2BlueDiamonds(),
-                player2Wins,
                 session.getLevelNumber()
         );
 
@@ -107,10 +100,6 @@ public class GameSessionService {
 
     public List<GameSession> getRecentSessions() {
         return sessionRepository.findTop20ByOrderByCreatedAtDesc();
-    }
-
-    public Long getWinCount(UUID playerId) {
-        return sessionRepository.countWinsByPlayerId(playerId);
     }
 
     public Double getAverageTimeForLevel(Integer level) {

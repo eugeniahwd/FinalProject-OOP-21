@@ -40,7 +40,7 @@ public class GameSession {
     @Column(name = "player2_score")
     private Integer player2Score = 0;
 
-    // Game Stats
+    // Game Stats - TEAMWORK based
     @Column(name = "total_diamonds")
     private Integer totalDiamonds = 0;
 
@@ -62,11 +62,7 @@ public class GameSession {
     @Column(name = "completed")
     private Boolean completed = false;
 
-    @Column(name = "winner_id")
-    private UUID winnerId;
-
-    @Column(name = "winner_username")
-    private String winnerUsername;
+    // DIHAPUS: winnerId dan winnerUsername - karena ini teamwork game
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -148,14 +144,6 @@ public class GameSession {
     public Boolean getCompleted() { return completed; }
     public void setCompleted(Boolean completed) { this.completed = completed; }
 
-    public UUID getWinnerId() { return winnerId; }
-    public void setWinnerId(UUID winnerId) { this.winnerId = winnerId; }
-
-    public String getWinnerUsername() { return winnerUsername; }
-    public void setWinnerUsername(String winnerUsername) {
-        this.winnerUsername = winnerUsername;
-    }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
@@ -168,21 +156,12 @@ public class GameSession {
         this.totalScore = this.player1Score + this.player2Score;
     }
 
-    public void determineWinner() {
-        if (this.player1Score > this.player2Score) {
-            this.winnerId = this.player1Id;
-            this.winnerUsername = this.player1Username;
-        } else if (this.player2Score > this.player1Score) {
-            this.winnerId = this.player2Id;
-            this.winnerUsername = this.player2Username;
-        }
-        // null jika draw
-    }
+    // DIHAPUS: determineWinner() - tidak ada winner dalam teamwork game
 
     public void finishGame() {
         this.completed = true;
         this.finishedAt = LocalDateTime.now();
         calculateTotals();
-        determineWinner();
+        // Tidak ada penentuan winner
     }
 }

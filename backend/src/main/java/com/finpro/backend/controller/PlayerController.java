@@ -85,16 +85,13 @@ public class PlayerController {
         }
     }
 
-    // Leaderboards
+    // Leaderboards - TEAMWORK based
     @GetMapping("/leaderboard/score")
     public ResponseEntity<List<Player>> getLeaderboardByScore() {
         return ResponseEntity.ok(playerService.getLeaderboardByScore());
     }
 
-    @GetMapping("/leaderboard/wins")
-    public ResponseEntity<List<Player>> getLeaderboardByWins() {
-        return ResponseEntity.ok(playerService.getLeaderboardByWins());
-    }
+    // DIHAPUS: getLeaderboardByWins() - tidak relevan untuk teamwork game
 
     @GetMapping("/leaderboard/diamonds")
     public ResponseEntity<List<Player>> getLeaderboardByDiamonds() {

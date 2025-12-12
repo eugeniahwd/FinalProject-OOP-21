@@ -1,4 +1,3 @@
-// ===== GameSessionController.java =====
 package com.finpro.backend.controller;
 
 import com.finpro.backend.dto.GameFinishRequest;
@@ -136,12 +135,7 @@ public class GameSessionController {
         return ResponseEntity.ok(sessionService.getRecentSessions());
     }
 
-    // Get player wins
-    @GetMapping("/sessions/player/{playerId}/wins")
-    public ResponseEntity<?> getPlayerWins(@PathVariable UUID playerId) {
-        Long wins = sessionService.getWinCount(playerId);
-        return ResponseEntity.ok(Map.of("wins", wins));
-    }
+    // DIHAPUS: getPlayerWins() - tidak relevan untuk teamwork game
 
     // Average time for level
     @GetMapping("/sessions/level/{level}/average-time")

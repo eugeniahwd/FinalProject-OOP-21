@@ -29,13 +29,9 @@ public interface GameSessionRepository extends JpaRepository<GameSession, UUID> 
     // Recent sessions
     List<GameSession> findTop20ByOrderByCreatedAtDesc();
 
-    // Leaderboard - best sessions
+    // Leaderboard - best sessions (TEAMWORK based)
     @Query("SELECT gs FROM GameSession gs WHERE gs.completed = true ORDER BY gs.totalScore DESC, gs.timeSeconds ASC")
     List<GameSession> findTopSessions();
-
-    // Count wins
-    @Query("SELECT COUNT(gs) FROM GameSession gs WHERE gs.winnerId = :playerId AND gs.completed = true")
-    Long countWinsByPlayerId(@Param("playerId") UUID playerId);
 
     // Average time per level
     @Query("SELECT AVG(gs.timeSeconds) FROM GameSession gs WHERE gs.levelNumber = :level AND gs.completed = true")
