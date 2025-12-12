@@ -18,12 +18,11 @@ public class Box {
     private boolean movingRight = true;
     private boolean movingUp = true;  // Untuk vertical
     private boolean isMovingPlatform = false;
-    private boolean isVertical = false;  // NEW: Flag untuk vertical movement
+    private boolean isVertical = false;
 
     private Rectangle bounds;
     private boolean onGround;
 
-    // Constructor untuk regular box (tidak terpakai lagi)
     public Box(float x, float y) {
         this.x = x;
         this.y = y;
@@ -35,7 +34,7 @@ public class Box {
         this.isVertical = false;
     }
 
-    // Constructor untuk HORIZONTAL moving platform
+    // Constructor untuk HORIZONTAL moving box
     public Box(float x, float y, float startX, float endX) {
         this.x = x;
         this.y = y;
@@ -52,7 +51,7 @@ public class Box {
         this.movingRight = true;
     }
 
-    // Constructor untuk VERTICAL moving platform (NEW!)
+    // Constructor untuk VERTICAL moving box
     public Box(float x, float y, float startY, float endY, boolean isVertical) {
         this.x = x;
         this.y = y;
@@ -67,7 +66,7 @@ public class Box {
         if (isVertical) {
             this.startY = startY;
             this.endY = endY;
-            this.moveSpeed = 80;  // Bisa lebih lambat untuk vertical
+            this.moveSpeed = 80;
             this.movingUp = true;
         }
     }
@@ -75,51 +74,40 @@ public class Box {
     public void update(float delta) {
         if (isMovingPlatform) {
             if (isVertical) {
-                // VERTICAL MOVEMENT
+                // Update velocity untuk vertical movement
                 if (movingUp) {
-                    y += moveSpeed * delta;
+                    velocityY = moveSpeed;
                     if (y >= endY) {
                         y = endY;
                         movingUp = false;
                     }
                 } else {
-                    y -= moveSpeed * delta;
+                    velocityY = -moveSpeed;
                     if (y <= startY) {
                         y = startY;
                         movingUp = true;
                     }
                 }
-
-                velocityX = 0;
-                velocityY = movingUp ? moveSpeed : -moveSpeed;
+                velocityX = 0;  // No horizontal movement
             } else {
-                // HORIZONTAL MOVEMENT (existing code)
+                // Update velocity untuk horizontal movement
                 if (movingRight) {
-                    x += moveSpeed * delta;
+                    velocityX = moveSpeed;
                     if (x >= endX) {
                         x = endX;
                         movingRight = false;
                     }
                 } else {
-                    x -= moveSpeed * delta;
+                    velocityX = -moveSpeed;
                     if (x <= startX) {
                         x = startX;
                         movingRight = true;
                     }
                 }
-
-                velocityX = movingRight ? moveSpeed : -moveSpeed;
-                velocityY = 0;
-            }
-        } else {
-            // Regular box with gravity (not used)
-            if (!onGround) {
-                velocityY += GRAVITY * delta;
-                if (velocityY < MAX_FALL_SPEED) {
-                    velocityY = MAX_FALL_SPEED;
-                }
+                velocityY = 0;  // No vertical movement
             }
 
+            // Apply movement based on velocity
             x += velocityX * delta;
             y += velocityY * delta;
         }

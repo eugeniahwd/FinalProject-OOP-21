@@ -20,7 +20,6 @@ public class MenuScreen implements Screen {
     private SpriteBatch batch;
     private float timer;
 
-    // FIXED: Changed parameter type from Game to Main
     public MenuScreen(Main game) {
         this.game = game;
         camera = new OrthographicCamera();

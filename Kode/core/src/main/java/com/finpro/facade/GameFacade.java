@@ -48,7 +48,7 @@ public class GameFacade {
         this.keysCollected = 0;
         this.spawnProtectionTimer = SPAWN_PROTECTION_TIME;
 
-        background = new Texture("background.png");
+        background = new Texture("walls.png");
         initializeLevel();
     }
 
@@ -304,7 +304,7 @@ public class GameFacade {
 
         // BACKGROUND (sprite)
         batch.begin();
-        batch.draw(background, 0, 330, Main.WORLD_WIDTH, Main.WORLD_HEIGHT);
+        batch.draw(background, 0, 0, Main.WORLD_WIDTH, Main.WORLD_HEIGHT);
         batch.end();
 
         // ===== FILLED SHAPES =====
