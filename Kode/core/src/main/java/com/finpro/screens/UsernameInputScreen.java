@@ -50,7 +50,7 @@ public class UsernameInputScreen implements Screen {
 
         // Title
         font.getData().setScale(2f);
-        font.setColor(Color.YELLOW);
+        font.setColor(Color.WHITE);
         font.draw(batch, "Enter Player Names", 440, 620);
 
         // Level info

@@ -12,7 +12,7 @@ import com.finpro.facade.GameFacade;
 import com.finpro.service.ApiService;
 
 public class VictoryScreen implements Screen {
-    private Main game;  // FIXED: Changed from Game to Main
+    private Main game;
     private OrthographicCamera camera;
     private BitmapFont font;
     private float timer;
@@ -25,7 +25,7 @@ public class VictoryScreen implements Screen {
 
     // FIXED: Changed parameter type from Game to Main
     public VictoryScreen(Main game, GameFacade gameFacade, String player1Username, String player2Username) {
-        this.game = game;  // FIXED: No more casting needed
+        this.game = game;
         this.gameFacade = gameFacade;
         this.player1Username = player1Username;
         this.player2Username = player2Username;

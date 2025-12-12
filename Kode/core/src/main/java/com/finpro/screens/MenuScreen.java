@@ -47,37 +47,24 @@ public class MenuScreen implements Screen {
         batch.begin();
 
         // Animated title
-        float pulse = (float) Math.abs(Math.sin(timer * 2)) * 0.3f + 0.7f;
+        float pulse = (float) Math.abs(Math.sin(timer * 2)) * 0.5f + 1.5f;
         font.setColor(1, pulse, 0, 1);
-        font.draw(batch, "FIREGIRL & WATERBOY", 350, 550);
+        font.draw(batch, "SPARKBOUNDS", 500, 550);
 
-        // Subtitle
-        font.getData().setScale(1.2f);
-        font.setColor(Color.CYAN);
-        font.draw(batch, "The Ultimate Puzzle Platformer", 390, 480);
 
         // Level selection
         font.getData().setScale(1.5f);
         font.setColor(Color.WHITE);
-        font.draw(batch, "Select Your Challenge:", 420, 400);
-
-        font.setColor(Color.GREEN);
-        font.draw(batch, "Press 1 - Easy Level", 450, 330);
-
-        font.setColor(Color.YELLOW);
-        font.draw(batch, "Press 2 - Medium Level", 420, 280);
-
-        font.setColor(Color.RED);
-        font.draw(batch, "Press 3 - Hard Level", 450, 230);
+        font.draw(batch, "PRESS 1 TO START", 500, 400);
 
         // Instructions
         font.getData().setScale(1f);
         font.setColor(Color.CYAN);
 
         // Controls reminder
-        font.getData().setScale(0.8f);
+        font.getData().setScale(1.5f);
         font.setColor(Color.GRAY);
-        font.draw(batch, "FireGirl: WASD | WaterBoy: Arrow Keys | ESC: Exit", 380, 35);
+        font.draw(batch, "FireGirl: WASD | WaterBoy: Arrow Keys | ESC: Exit", 350, 100);
 
         batch.end();
 

@@ -106,18 +106,25 @@ public class GameScreen implements Screen {
         font.setColor(Color.WHITE);
         font.draw(uiBatch, "Level " + level, 20, Gdx.graphics.getHeight() - 20);
 
+        // timer
+        font.setColor(Color.YELLOW);
+        int minutes = gameFacade.getGameTimeSeconds() / 60;
+        int seconds = gameFacade.getGameTimeSeconds() % 60;
+        String timeText = String.format("Time: %02d:%02d", minutes, seconds);
+        font.draw(uiBatch, timeText, 20, Gdx.graphics.getHeight() - 50);
+
         // Keys collected
         String keyText = "Keys: " + gameFacade.getKeysCollected() + "/" + gameFacade.getTotalKeys();
         font.setColor(gameFacade.isDoorUnlocked() ? Color.GREEN : Color.YELLOW);
-        font.draw(uiBatch, keyText, 20, Gdx.graphics.getHeight() - 50);
+        font.draw(uiBatch, keyText, 20, Gdx.graphics.getHeight() - 80);
 
         // Door status
         if (gameFacade.isDoorUnlocked()) {
             font.setColor(Color.GREEN);
-            font.draw(uiBatch, "Door UNLOCKED!", 20, Gdx.graphics.getHeight() - 80);
+            font.draw(uiBatch, "Door UNLOCKED!", 20, Gdx.graphics.getHeight() - 110);
         } else {
             font.setColor(Color.RED);
-            font.draw(uiBatch, "Door LOCKED - Find Keys!", 20, Gdx.graphics.getHeight() - 80);
+            font.draw(uiBatch, "Door LOCKED - Find Keys!", 20, Gdx.graphics.getHeight() - 110);
         }
 
         font.getData().setScale(1.2f);
