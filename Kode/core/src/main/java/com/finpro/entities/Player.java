@@ -183,7 +183,7 @@ public class Player {
     }
 
     public void render(SpriteBatch batch) {
-        // FIXED: Selalu reset color
+        //Selalu reset color
         if (isDead) {
             batch.setColor(1, 1, 1, 0.5f);
         } else {
@@ -192,7 +192,7 @@ public class Player {
 
         batch.draw(texture, x, y, WIDTH, HEIGHT);
 
-        // CRITICAL: Reset color setelah draw
+        // Reset color setelah draw
         batch.setColor(1, 1, 1, 1);
     }
 

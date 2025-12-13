@@ -27,17 +27,16 @@ public class Platform {
 
     // Constructor overload untuk backward compatibility
     public Platform(float x, float y, float width) {
-        this(x, y, width, false); // Default horizontal
+        this(x, y, width, false);
     }
 
-    // INI SATU-SATUNYA METHOD YANG DIPANGGIL oleh GameFacade
     public void render(ShapeRenderer renderer) {
         // Base wood color (dark brown)
-        renderer.setColor(Color.valueOf("8B4513")); // Saddle Brown - base wood
+        renderer.setColor(Color.valueOf("8B4513"));
         renderer.rect(x, y, width, height);
 
         // Wood grain pattern (slightly darker lines)
-        renderer.setColor(Color.valueOf("654321")); // Dark brown for grains
+        renderer.setColor(Color.valueOf("654321"));
 
         if (isVertical) {
             // Vertical platform - horizontal wood grains
@@ -45,14 +44,13 @@ public class Platform {
             for (int i = 1; i <= 6; i++) {
                 float grainY = y + (i * (height / 7));
                 renderer.rectLine(
-                    x + 3, grainY,          // Start point
-                    x + width - 3, grainY,  // End point
-                    1.3f                     // Line thickness
+                    x + 3, grainY,
+                    x + width - 3, grainY,
+                    1.3f
                 );
             }
 
-            // Vertical plank divisions (makes it look like planks)
-            renderer.setColor(Color.valueOf("5D4037")); // Darker for plank edges
+            renderer.setColor(Color.valueOf("5D4037"));
             for (int i = 1; i <= 2; i++) {
                 float plankX = x + (i * (width / 3));
                 renderer.rectLine(
@@ -67,14 +65,14 @@ public class Platform {
             for (int i = 1; i <= 10; i++) {
                 float grainX = x + (i * (width / 11));
                 renderer.rectLine(
-                    grainX, y + 3,          // Start point
-                    grainX, y + height - 3, // End point
-                    1.3f                     // Line thickness
+                    grainX, y + 3,
+                    grainX, y + height - 3,
+                    1.3f
                 );
             }
 
             // Horizontal plank divisions
-            renderer.setColor(Color.valueOf("5D4037")); // Darker for plank edges
+            renderer.setColor(Color.valueOf("5D4037"));
             for (int i = 1; i <= 3; i++) {
                 float plankY = y + (i * (height / 4));
                 renderer.rectLine(
@@ -86,32 +84,32 @@ public class Platform {
         }
 
         // Wood knots (circles that look like wood knots)
-        renderer.setColor(Color.valueOf("3E2723")); // Very dark brown
+        renderer.setColor(Color.valueOf("3E2723"));
         if (isVertical) {
-            // 3 knots untuk platform vertikal
+            // 3 knots buat platform vertikal
             renderer.circle(x + width/2, y + height/4, 2f);
             renderer.circle(x + width/3, y + height/2, 1.8f);
             renderer.circle(x + 2*width/3, y + 3*height/4, 2.2f);
         } else {
-            // 3 knots untuk platform horizontal
+            // 3 knots buat platform horizontal
             renderer.circle(x + width/4, y + height/2, 2f);
             renderer.circle(x + width/2, y + height/2, 2.5f);
             renderer.circle(x + 3*width/4, y + height/2, 1.8f);
         }
 
-        // Simple border/edge (optional)
+        // border
         renderer.setColor(Color.valueOf("3E2723"));
-        renderer.rect(x, y, width, 1); // Top edge
-        renderer.rect(x, y + height - 1, width, 1); // Bottom edge
-        renderer.rect(x, y, 1, height); // Left edge
-        renderer.rect(x + width - 1, y, 1, height); // Right edge
+        renderer.rect(x, y, width, 1);
+        renderer.rect(x, y + height - 1, width, 1);
+        renderer.rect(x, y, 1, height);
+        renderer.rect(x + width - 1, y, 1, height);
     }
 
     public Rectangle getBounds() {
         return bounds;
     }
 
-    // Getter methods (tetap sama)
+    // Getter methods
     public float getX() { return x; }
     public float getY() { return y; }
     public float getWidth() { return width; }

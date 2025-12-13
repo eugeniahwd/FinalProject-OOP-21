@@ -7,11 +7,11 @@ import com.badlogic.gdx.math.Rectangle;
 public class Obstacle {
     public enum ObstacleType { FIRE, WATER }
 
-    private Rectangle visualBounds;    // Untuk rendering (1090x1080, tapi discale)
-    private Rectangle collisionBounds; // Untuk collision (lebih kecil)
+    private Rectangle visualBounds;
+    private Rectangle collisionBounds;
     private Texture texture;
     private ObstacleType type;
-    private float visualScale;         // Skala untuk visual
+    private float visualScale;
 
     public Obstacle(float x, float y, ObstacleType type) {
         this.type = type;
@@ -20,21 +20,17 @@ public class Obstacle {
             "lava.png" : "water.png";
         this.texture = new Texture(texturePath);
 
-        // 1. VISUAL BOUNDS (untuk rendering)
-        // Skala kecil untuk visual, tapi posisi Y tetap sesuai yang diinginkan
-        this.visualScale = 0.1f; // 10% dari asli (coba 0.1f dulu)
+        this.visualScale = 0.1f;
         float visualWidth = texture.getWidth() * visualScale;
         float visualHeight = texture.getHeight() * visualScale;
 
-        // Posisi visual: tetap di (x, y) seperti yang sudah diatur
         this.visualBounds = new Rectangle(x, y, visualWidth, visualHeight);
 
-        // 2. COLLISION BOUNDS (untuk deteksi tabrakan)
-        // Lebih kecil dari visual, dan bisa diatur offset-nya
-        float collisionWidth = 60f;    // Lebar collision
-        float collisionHeight = 30f;   // Tinggi collision
 
-        // Pusatkan collision di tengah visual
+        float collisionWidth = 60f;
+        float collisionHeight = 30f;
+
+        // collision di tengah visual
         float collisionX = x + (visualWidth - collisionWidth) / 2;
         float collisionY = y + (visualHeight - collisionHeight) / 2;
 
@@ -44,18 +40,18 @@ public class Obstacle {
     }
 
     public void render(SpriteBatch batch) {
-        // Render dengan skala visual
+        // Render pake skala visual
         batch.draw(texture,
             visualBounds.x, visualBounds.y,
             visualBounds.width, visualBounds.height);
     }
 
-    // Untuk collision detection
+    // collision detection
     public Rectangle getBounds() {
         return collisionBounds;
     }
 
-    // Untuk debug rendering
+    // debug rendering
     public Rectangle getVisualBounds() {
         return visualBounds;
     }

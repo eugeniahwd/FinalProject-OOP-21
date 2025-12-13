@@ -12,11 +12,11 @@ public class Box {
     private static final float MAX_FALL_SPEED = -600;
 
     // Moving platform properties
-    private float startX, endX;  // Untuk horizontal
-    private float startY, endY;  // Untuk vertical
+    private float startX, endX;
+    private float startY, endY;
     private float moveSpeed = 100;
     private boolean movingRight = true;
-    private boolean movingUp = true;  // Untuk vertical
+    private boolean movingUp = true;
     private boolean isMovingPlatform = false;
     private boolean isVertical = false;
 
@@ -34,7 +34,7 @@ public class Box {
         this.isVertical = false;
     }
 
-    // Constructor untuk HORIZONTAL moving box
+    // Constructor horizontal moving box
     public Box(float x, float y, float startX, float endX) {
         this.x = x;
         this.y = y;
@@ -51,7 +51,7 @@ public class Box {
         this.movingRight = true;
     }
 
-    // Constructor untuk VERTICAL moving box
+    // Constructor vertical moving box
     public Box(float x, float y, float startY, float endY, boolean isVertical) {
         this.x = x;
         this.y = y;
@@ -74,7 +74,7 @@ public class Box {
     public void update(float delta) {
         if (isMovingPlatform) {
             if (isVertical) {
-                // Update velocity untuk vertical movement
+                // velocity vertical movement
                 if (movingUp) {
                     velocityY = moveSpeed;
                     if (y >= endY) {
@@ -88,9 +88,9 @@ public class Box {
                         movingUp = true;
                     }
                 }
-                velocityX = 0;  // No horizontal movement
+                velocityX = 0;
             } else {
-                // Update velocity untuk horizontal movement
+                // velocity horizontal movement
                 if (movingRight) {
                     velocityX = moveSpeed;
                     if (x >= endX) {
@@ -104,10 +104,9 @@ public class Box {
                         movingRight = true;
                     }
                 }
-                velocityY = 0;  // No vertical movement
+                velocityY = 0;
             }
 
-            // Apply movement based on velocity
             x += velocityX * delta;
             y += velocityY * delta;
         }
@@ -119,9 +118,9 @@ public class Box {
         // Color berbeda untuk vertical moving platform
         if (isMovingPlatform) {
             if (isVertical) {
-                renderer.setColor(Color.valueOf("9C27B0")); // Purple untuk vertical
+                renderer.setColor(Color.valueOf("9C27B0")); //ungu
             } else {
-                renderer.setColor(Color.valueOf("FF9800")); // Orange untuk horizontal
+                renderer.setColor(Color.valueOf("FF9800")); //oren
             }
         } else {
             renderer.setColor(Color.valueOf("8B4513"));
@@ -194,7 +193,7 @@ public class Box {
     public void renderOutline(ShapeRenderer renderer) {
         if (isMovingPlatform) {
             if (isVertical) {
-                renderer.setColor(Color.valueOf("4A148C")); // Dark purple
+                renderer.setColor(Color.valueOf("4A148C"));
             } else {
                 renderer.setColor(Color.valueOf("E65100"));
             }
