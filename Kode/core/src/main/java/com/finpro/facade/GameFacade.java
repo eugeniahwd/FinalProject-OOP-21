@@ -48,7 +48,7 @@ public class GameFacade {
         this.keysCollected = 0;
         this.spawnProtectionTimer = SPAWN_PROTECTION_TIME;
 
-        background = new Texture("walls.png");
+        background = new Texture("background.png");
         initializeLevel();
     }
 
@@ -209,67 +209,127 @@ public class GameFacade {
     }
 
     private void setupHardLevel() {
-        platforms.add(EntityFactory.createPlatform(0, 0, 200, false));
-        platforms.add(EntityFactory.createPlatform(350, 0, 150, false));
-        platforms.add(EntityFactory.createPlatform(650, 0, 150, false));
-        platforms.add(EntityFactory.createPlatform(950, 0, 150, false));
-        platforms.add(EntityFactory.createPlatform(1250, 0, 350, false));
+        // 3 Platform bawah
+        platforms.add(EntityFactory.createPlatform(0, 150, 170, false));
+        platforms.add(EntityFactory.createPlatform(320, 150, 150, false));
+        platforms.add(EntityFactory.createPlatform(620, 150, 150, false));
+        platforms.add(EntityFactory.createPlatform(920, 150, 150, false));
+        // platform lift pojok
+        platforms.add(EntityFactory.createPlatform(1500, 40, 185, true));
+        // platform lift tengah
+        platforms.add(EntityFactory.createPlatform(770, 400, 115, false));
+        platforms.add(EntityFactory.createPlatform(620, 350, 330, true));
+        // yang kecil sebelum turunan
+        platforms.add(EntityFactory.createPlatform(520, 680, 120, false));
+        // yang ada diamondnya
+        platforms.add(EntityFactory.createPlatform(280, 500, 200, false));
+        // yang ke kanan buat jalur ambik kuncih
+        platforms.add(EntityFactory.createPlatform(770, 680, 380, false));
 
-        platforms.add(EntityFactory.createPlatform(0, 780, 200, false));
-        platforms.add(EntityFactory.createPlatform(200, 350, 430, true));
+        //buat obstacle penyebrangan ke ujung di atas
+        platforms.add(EntityFactory.createPlatform(1150, 500, 320, false));
 
-        platforms.add(EntityFactory.createPlatform(200, 350, 350, false));
+        // buat platform paling atas
+        platforms.add(EntityFactory.createPlatform(450, 780, 700, false));
+        platforms.add(EntityFactory.createPlatform(450, 610, 170, true));
+        platforms.add(EntityFactory.createPlatform(300, 610, 300, true));
+        platforms.add(EntityFactory.createPlatform(300, 610, 150, false));
 
-        platforms.add(EntityFactory.createPlatform(550, 450, 250, true));
-        platforms.add(EntityFactory.createPlatform(550, 450, 200, false));
-        platforms.add(EntityFactory.createPlatform(750, 450, 250, true));
-        platforms.add(EntityFactory.createPlatform(550, 700, 800, false));
 
-        platforms.add(EntityFactory.createPlatform(1000, 400, 250, false));
-        platforms.add(EntityFactory.createPlatform(1400, 650, 200, false));
+        // buat di pojok kanan atas ada diamond
+        platforms.add(EntityFactory.createPlatform(1500, 780, 250, false));
+        platforms.add(EntityFactory.createPlatform(1500, 680, 100, true));
 
-        boxes.add(EntityFactory.createVerticalMovingBox(100, 100, 100, 350));
-        boxes.add(EntityFactory.createVerticalMovingBox(100, 350, 350, 780));
-        boxes.add(EntityFactory.createVerticalMovingBox(620, 200, 200, 450));
-        boxes.add(EntityFactory.createVerticalMovingBox(1500, 100, 100, 650));
+        // platform buat pintu
+        platforms.add(EntityFactory.createPlatform(0, 780, 70, false));
 
-        boxes.add(EntityFactory.createMovingBox(1100, 350, 800, 1150));
 
-        obstacles.add(EntityFactory.createObstacle(200, 0, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(260, 0, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(500, 0, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(560, 0, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(800, 0, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(860, 0, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(1100, 0, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(1160, 0, Obstacle.ObstacleType.WATER));
 
-        obstacles.add(EntityFactory.createObstacle(300, 350, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(350, 350, Obstacle.ObstacleType.WATER));
+        boxes.add(EntityFactory.createVerticalMovingBox(1530, 50, 60, 500));
+        boxes.add(EntityFactory.createMovingBox(1450, 300, 1000, 1480));
+        boxes.add(EntityFactory.createVerticalMovingBox(695, 355, 370, 600));
+        boxes.add(EntityFactory.createMovingBox(1250, 680, 1250, 1350));
+        boxes.add(EntityFactory.createVerticalMovingBox(120, 350, 300, 650));
 
-        obstacles.add(EntityFactory.createObstacle(600, 450, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(660, 450, Obstacle.ObstacleType.FIRE));
 
-        obstacles.add(EntityFactory.createObstacle(1050, 400, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(1110, 400, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(150, 9, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(450, 9, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(750, 9, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(1050, 9, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(-50, 130, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(30, 130, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(-50, 130, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(30, 130, Obstacle.ObstacleType.FIRE));
+        //obstacle sebelum kunci
+        obstacles.add(EntityFactory.createObstacle(1000, 760, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(880, 760, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(760, 760, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(640, 760, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(520, 760, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(520, 760, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(400, 760, Obstacle.ObstacleType.FIRE));
 
-        obstacles.add(EntityFactory.createObstacle(900, 700, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(960, 700, Obstacle.ObstacleType.FIRE));
-        obstacles.add(EntityFactory.createObstacle(1150, 700, Obstacle.ObstacleType.WATER));
-        obstacles.add(EntityFactory.createObstacle(1210, 700, Obstacle.ObstacleType.WATER));
 
-        diamondPool.obtain(330, 480, Diamond.DiamondType.RED);
-        diamondPool.obtain(230, 100, Diamond.DiamondType.RED);
-        diamondPool.obtain(530, 100, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1080, 550, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1130, 100, Diamond.DiamondType.BLUE);
-        diamondPool.obtain(1450, 750, Diamond.DiamondType.RED);
+        //obstacle kunci
+        obstacles.add(EntityFactory.createObstacle(285, 590, Obstacle.ObstacleType.WATER));
 
-        keys.add(EntityFactory.createKey(80, 850));
-        keys.add(EntityFactory.createKey(630, 600));
-        keys.add(EntityFactory.createKey(1500, 100));
+        // Obstacle lift
+        obstacles.add(EntityFactory.createObstacle(745, 380, Obstacle.ObstacleType.FIRE));
 
-        door = EntityFactory.createDoor(50, 780);
+        // obstacle 1 biji di atas
+        obstacles.add(EntityFactory.createObstacle(280, 480, Obstacle.ObstacleType.FIRE));
+
+        // obstacle pojok kanan atas
+        obstacles.add(EntityFactory.createObstacle(1460, 760, Obstacle.ObstacleType.WATER));
+
+
+        //obstacle deret penyebrangan ataas
+        obstacles.add(EntityFactory.createObstacle(1095, 480, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(1095, 480, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1175, 480, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1175, 480, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(1255, 480, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(1255, 480, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1335, 480, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(1335, 480, Obstacle.ObstacleType.WATER));
+
+        // Obstacles deret bawah
+        obstacles.add(EntityFactory.createObstacle(290, 130, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(315, 130, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(585, 130, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(610, 130, Obstacle.ObstacleType.FIRE));
+        obstacles.add(EntityFactory.createObstacle(885, 130, Obstacle.ObstacleType.WATER));
+        obstacles.add(EntityFactory.createObstacle(910, 130, Obstacle.ObstacleType.WATER));
+
+        diamondPool.obtain(225, 150, Diamond.DiamondType.RED);
+        diamondPool.obtain(525, 150, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(825, 150, Diamond.DiamondType.RED);
+        diamondPool.obtain(1125, 150, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(1550, 870, Diamond.DiamondType.RED);
+
+        // diamond di platform deret bawah
+        diamondPool.obtain(385, 230, Diamond.DiamondType.RED);
+        diamondPool.obtain(685, 230, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(985, 230, Diamond.DiamondType.RED);
+
+        // diamond di jalur tikus
+        diamondPool.obtain(770, 720, Diamond.DiamondType.RED);
+        diamondPool.obtain(830, 720, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(890, 720, Diamond.DiamondType.RED);
+        diamondPool.obtain(950, 720, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(1010, 720, Diamond.DiamondType.RED);
+        diamondPool.obtain(1070, 720, Diamond.DiamondType.BLUE);
+        diamondPool.obtain(1130, 720, Diamond.DiamondType.RED);
+
+
+        //diamond sebiiji
+        diamondPool.obtain(360, 575, Diamond.DiamondType.BLUE);
+
+        keys.add(EntityFactory.createKey(1535, 750));
+        keys.add(EntityFactory.createKey(260, 870));
+        keys.add(EntityFactory.createKey(375, 680));
+
+        door = EntityFactory.createDoor(0, 800);
     }
 
     public void updateGame(float delta) {
