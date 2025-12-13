@@ -7,11 +7,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.finpro.Main;
 
 public class GameOverScreen implements Screen {
-    private Main game;  // FIXED: Changed from Game to Main
+    private Main game;
     private OrthographicCamera camera;
     private BitmapFont font;
     private SpriteBatch batch;
@@ -19,8 +20,8 @@ public class GameOverScreen implements Screen {
     private float timer;
     private String player1Username;
     private String player2Username;
+    private GlyphLayout layout;
 
-    // FIXED: Changed parameter type from Game to Main
     public GameOverScreen(Main game, int level, String p1, String p2) {
         this.game = game;
         this.currentLevel = level;
@@ -32,7 +33,16 @@ public class GameOverScreen implements Screen {
 
         font = new BitmapFont();
         batch = new SpriteBatch();
+        layout = new GlyphLayout();
         timer = 0;
+    }
+
+    private void drawCenteredText(String text, float y, float scale, Color color) {
+        font.getData().setScale(scale);
+        font.setColor(color);
+        layout.setText(font, text);
+        float x = (1280 - layout.width) / 2;
+        font.draw(batch, text, x, y);
     }
 
     @Override
@@ -50,33 +60,26 @@ public class GameOverScreen implements Screen {
         // Pulsing effect for GAME OVER text
         float pulse = (float) Math.abs(Math.sin(timer * 3));
 
-        // GAME OVER text
-        font.getData().setScale(4f);
-        font.setColor(1, pulse * 0.3f, 0, 1);
-        font.draw(batch, "GAME OVER!", 420, 500);
+        // GAME OVER text (centered)
+        Color gameOverColor = new Color(1, pulse * 0.3f, 0, 1);
+        drawCenteredText("GAME OVER!", 500, 4f, gameOverColor);
 
-        // Death message
-        font.getData().setScale(1.8f);
-        font.setColor(Color.WHITE);
-        font.draw(batch, "A player touched the wrong element!", 320, 410);
+        // Death message (centered)
+        drawCenteredText("A player touched the wrong element!", 410, 1.8f, Color.WHITE);
 
-        // Instructions
-        font.getData().setScale(1.5f);
-        font.setColor(Color.YELLOW);
-        font.draw(batch, "Press R to Retry Level " + currentLevel, 410, 320);
-        font.draw(batch, "Press M for Main Menu", 440, 280);
-        font.draw(batch, "Press ESC to Exit", 470, 240);
+        // Instructions (centered)
+        drawCenteredText("Press R to Retry Level " + currentLevel, 320, 1.5f, Color.YELLOW);
+        drawCenteredText("Press M for Main Menu", 280, 1.5f, Color.YELLOW);
+        drawCenteredText("Press ESC to Exit", 240, 1.5f, Color.YELLOW);
 
         batch.end();
 
-        // Handle input - Use GameStateManager for retry
+        // Handle input
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            // Retry current level using GameStateManager
             com.finpro.managers.GameStateManager gsm = com.finpro.managers.GameStateManager.getInstance();
             if (gsm.hasActiveSession()) {
                 gsm.startLevel(currentLevel);
             } else {
-                // Fallback if session lost
                 game.setScreen(new GameScreen(game, currentLevel, player1Username, player2Username));
             }
         }
