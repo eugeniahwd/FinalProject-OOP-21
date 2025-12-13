@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.finpro.Main;
 import com.finpro.facade.GameFacade;
 import com.finpro.service.ApiService;
@@ -15,6 +16,7 @@ public class VictoryScreen implements Screen {
     private Main game;
     private OrthographicCamera camera;
     private BitmapFont font;
+    private GlyphLayout layout;
     private float timer;
     private GameFacade gameFacade;
     private boolean dataSaved = false;
@@ -23,7 +25,6 @@ public class VictoryScreen implements Screen {
     private String player1Username;
     private String player2Username;
 
-    // FIXED: Changed parameter type from Game to Main
     public VictoryScreen(Main game, GameFacade gameFacade, String player1Username, String player2Username) {
         this.game = game;
         this.gameFacade = gameFacade;
@@ -34,9 +35,18 @@ public class VictoryScreen implements Screen {
         camera.setToOrtho(false, 1280, 720);
 
         font = new BitmapFont();
+        layout = new GlyphLayout();
         timer = 0;
 
         saveGameResults();
+    }
+
+    private void drawCenteredText(String text, float y, float scale, Color color) {
+        font.getData().setScale(scale);
+        font.setColor(color);
+        layout.setText(font, text);
+        float x = (1280 - layout.width) / 2;
+        font.draw(game.batch, text, x, y);
     }
 
     private void saveGameResults() {
@@ -48,7 +58,6 @@ public class VictoryScreen implements Screen {
         System.out.println("Player 2: " + player2Username);
         System.out.println("Session ID: " + api.getCurrentSessionId());
 
-        // VERIFY SESSION EXISTS
         if (api.getCurrentSessionId() == null) {
             System.err.println("✗ ERROR: No session ID! Cannot save results.");
             savingData = false;
@@ -95,71 +104,64 @@ public class VictoryScreen implements Screen {
         game.batch.begin();
 
         // Animated colors
-        float colorWave = (float) Math.sin(timer * 2) * 0.5f + 0.5f;
         float rainbowR = (float) Math.sin(timer) * 0.5f + 0.5f;
         float rainbowG = (float) Math.sin(timer + 2) * 0.5f + 0.5f;
         float rainbowB = (float) Math.sin(timer + 4) * 0.5f + 0.5f;
+        float pulse = (float) Math.sin(timer * 2) * 0.5f + 0.5f;
 
         // Victory message
-        font.getData().setScale(4f);
-        font.setColor(rainbowR, rainbowG, rainbowB, 1);
-        font.draw(game.batch, "VICTORY!", 450, 650);
+        drawCenteredText("VICTORY!", 650, 4f, new Color(rainbowR, rainbowG, rainbowB, 1));
 
         // Congratulations
-        font.getData().setScale(2f);
-        font.setColor(1, colorWave, 0, 1);
-        font.draw(game.batch, "Level Complete!", 480, 570);
+        drawCenteredText("Level Complete!", 570, 2f, new Color(1, pulse, 0, 1));
 
-        // Game Statistics
-        font.getData().setScale(1.3f);
-        font.setColor(Color.WHITE);
-        font.draw(game.batch, "Game Statistics:", 500, 500);
+        // Divider line
+        drawCenteredText("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", 530, 1f, Color.GRAY);
 
-        font.getData().setScale(1.1f);
-        font.setColor(Color.RED);
-        font.draw(game.batch, "FireGirl - Red Diamonds: " + gameFacade.getFireGirlRedDiamonds(), 420, 460);
-        font.draw(game.batch, "FireGirl - Score: " + gameFacade.getFireGirlScore(), 420, 430);
+        // Game Statistics Title
+        drawCenteredText("Game Statistics", 490, 1.5f, Color.WHITE);
 
-        font.setColor(Color.CYAN);
-        font.draw(game.batch, "WaterBoy - Blue Diamonds: " + gameFacade.getWaterBoyBlueDiamonds(), 420, 390);
-        font.draw(game.batch, "WaterBoy - Score: " + gameFacade.getWaterBoyScore(), 420, 360);
+        // FireGirl Stats
+        drawCenteredText("FireGirl - Red Diamonds: " + gameFacade.getFireGirlRedDiamonds(),
+            445, 1.2f, Color.RED);
+        drawCenteredText("FireGirl - Score: " + gameFacade.getFireGirlScore(),
+            415, 1.2f, new Color(1f, 0.5f, 0.5f, 1f));
 
-        font.setColor(Color.YELLOW);
+        // WaterBoy Stats
+        drawCenteredText("WaterBoy - Blue Diamonds: " + gameFacade.getWaterBoyBlueDiamonds(),
+            375, 1.2f, Color.CYAN);
+        drawCenteredText("WaterBoy - Score: " + gameFacade.getWaterBoyScore(),
+            345, 1.2f, new Color(0.5f, 0.8f, 1f, 1f));
+
+        // Divider
+        drawCenteredText("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", 315, 1f, Color.GRAY);
+
+        // Total Stats
         int totalScore = gameFacade.getFireGirlScore() + gameFacade.getWaterBoyScore();
-        font.draw(game.batch, "Total Score: " + totalScore, 480, 320);
-        font.draw(game.batch, "Time: " + gameFacade.getGameTimeSeconds() + " seconds", 490, 290);
+        drawCenteredText("Total Score: " + totalScore, 280, 1.3f, Color.YELLOW);
+        drawCenteredText("Time: " + gameFacade.getGameTimeSeconds() + " seconds", 250, 1.1f, Color.YELLOW);
 
         // Save status
-        font.getData().setScale(0.9f);
         if (dataSaved) {
-            font.setColor(Color.GREEN);
-            font.draw(game.batch, "✓ Results saved to database!", 490, 250);
+            drawCenteredText("✓ Results saved to database!", 210, 1f, Color.GREEN);
         } else if (savingData) {
-            font.setColor(Color.ORANGE);
-            font.draw(game.batch, "Saving to backend...", 520, 250);
+            drawCenteredText("Saving to backend...", 210, 1f, Color.ORANGE);
         } else {
-            font.setColor(Color.GRAY);
-            font.draw(game.batch, "⚠ Offline mode (backend not connected)", 450, 250);
+            drawCenteredText("⚠ Offline mode (backend not connected)", 210, 0.9f, Color.GRAY);
         }
 
         // Instructions
-        font.getData().setScale(1.1f);
-        font.setColor(Color.CYAN);
-
         int currentLevel = com.finpro.managers.GameStateManager.getInstance().getCurrentLevel();
         if (currentLevel < 3) {
-            font.draw(game.batch, "Press ENTER for Next Level", 460, 180);
+            drawCenteredText("Press ENTER for Next Level", 160, 1.2f, Color.CYAN);
         } else {
-            font.draw(game.batch, "Press ENTER to Main Menu", 465, 180);
+            drawCenteredText("Press ENTER to Main Menu", 160, 1.2f, Color.CYAN);
         }
 
-        font.draw(game.batch, "Press M for Main Menu", 475, 150);
-        font.draw(game.batch, "Press ESC to exit", 500, 120);
+        drawCenteredText("Press M for Main Menu  |  Press ESC to Exit", 120, 1f, Color.LIGHT_GRAY);
 
         // Credits
-        font.getData().setScale(0.7f);
-        font.setColor(Color.GRAY);
-        font.draw(game.batch, "FireGirl & WaterBoy | LibGDX + Spring Boot + PostgreSQL", 390, 50);
+        drawCenteredText("LibGDX + Spring Boot + PostgreSQL", 60, 0.8f, new Color(0.5f, 0.5f, 0.5f, 1f));
 
         game.batch.end();
 
@@ -167,12 +169,9 @@ public class VictoryScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             gameFacade.dispose();
 
-            // Check if there's a next level
             if (currentLevel < 3) {
-                // Go to next level
                 com.finpro.managers.GameStateManager.getInstance().nextLevel();
             } else {
-                // All levels completed, back to menu
                 com.finpro.managers.GameStateManager.getInstance().resetSession();
                 game.setScreen(new MenuScreen(game));
             }
@@ -186,7 +185,6 @@ public class VictoryScreen implements Screen {
             Gdx.app.exit();
         }
 
-        // Reset scale
         font.getData().setScale(1f);
     }
 
