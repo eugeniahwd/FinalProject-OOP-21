@@ -48,7 +48,7 @@ public class GameFacade {
         this.keysCollected = 0;
         this.spawnProtectionTimer = SPAWN_PROTECTION_TIME;
 
-        background = new Texture("background.png");
+        background = new Texture("walls.png");
         initializeLevel();
     }
 

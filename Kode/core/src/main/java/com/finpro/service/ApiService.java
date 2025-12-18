@@ -12,10 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * API Service untuk komunikasi dengan Spring Boot Backend
- * Singleton Pattern dengan fallback ke offline mode
- */
+
 public class ApiService {
     private static final String BASE_URL = "http://localhost:8080/api";
     private static ApiService instance;

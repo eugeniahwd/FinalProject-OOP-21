@@ -6,21 +6,31 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.finpro.Main;
 import com.finpro.facade.GameFacade;
 import com.finpro.service.ApiService;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 
 public class VictoryScreen implements Screen {
     private Main game;
     private OrthographicCamera camera;
     private BitmapFont font;
+    private BitmapFont titleFont;
     private GlyphLayout layout;
     private float timer;
     private GameFacade gameFacade;
     private boolean dataSaved = false;
     private boolean savingData = false;
+
+    private Texture backgroundTexture;
+    private TextureRegion backgroundRegion;
+    private Texture whiteBoxTexture;
 
     private String player1Username;
     private String player2Username;
@@ -34,19 +44,48 @@ public class VictoryScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1280, 720);
 
+        // Load background
+        backgroundTexture = new Texture(Gdx.files.internal("walls.png"));
+        backgroundRegion = new TextureRegion(backgroundTexture);
+
+        // Create white box texture for background
+        createWhiteBoxTexture();
+
+        // Setup fonts
         font = new BitmapFont();
+        titleFont = new BitmapFont();
+
+        // Configure fonts
+        font.getData().setScale(1.1f);
+        font.setColor(Color.WHITE);
+
+        titleFont.getData().setScale(3f);
+        titleFont.setColor(new Color(1f, 0.8f, 0.2f, 1)); // Gold color
+
         layout = new GlyphLayout();
         timer = 0;
 
         saveGameResults();
     }
 
-    private void drawCenteredText(String text, float y, float scale, Color color) {
+    private void createWhiteBoxTexture() {
+        Pixmap pixmap = new Pixmap(600, 465, Pixmap.Format.RGBA8888);
+        pixmap.setColor(new Color(1f, 1f, 1f, 0.85f));
+        pixmap.fillRectangle(0, 0, 600, 465);
+        whiteBoxTexture = new Texture(pixmap);
+        pixmap.dispose();
+    }
+
+    private void drawCenteredText(BitmapFont font, String text, float y, float scale, Color color) {
         font.getData().setScale(scale);
         font.setColor(color);
         layout.setText(font, text);
         float x = (1280 - layout.width) / 2;
         font.draw(game.batch, text, x, y);
+    }
+
+    private void drawCenteredText(String text, float y, float scale, Color color) {
+        drawCenteredText(font, text, y, scale, color);
     }
 
     private void saveGameResults() {
@@ -95,7 +134,8 @@ public class VictoryScreen implements Screen {
     public void render(float delta) {
         timer += delta;
 
-        Gdx.gl.glClearColor(0.1f, 0.05f, 0.15f, 1);
+        // Clear dengan warna solid
+        Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
@@ -103,65 +143,82 @@ public class VictoryScreen implements Screen {
 
         game.batch.begin();
 
-        // Animated colors
-        float rainbowR = (float) Math.sin(timer) * 0.5f + 0.5f;
-        float rainbowG = (float) Math.sin(timer + 2) * 0.5f + 0.5f;
-        float rainbowB = (float) Math.sin(timer + 4) * 0.5f + 0.5f;
-        float pulse = (float) Math.sin(timer * 2) * 0.5f + 0.5f;
+        // Draw background FULL tanpa opacity
+        game.batch.draw(backgroundRegion, 0, 0, 1280, 720);
 
-        // Victory message
-        drawCenteredText("VICTORY!", 650, 4f, new Color(rainbowR, rainbowG, rainbowB, 1));
+        // Subtle pulse effect
+        float pulse = (float) Math.sin(timer * 3) * 0.15f + 0.85f;
 
-        // Congratulations
-        drawCenteredText("Level Complete!", 570, 2f, new Color(1, pulse, 0, 1));
+        Color victoryColor = new Color(1f, 0.85f, 0.1f, pulse); // Gold dengan pulse
+        drawCenteredText(titleFont, "VICTORY!", 650, 3.5f, victoryColor);
 
-        // Divider line
-        drawCenteredText("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", 530, 1f, Color.GRAY);
+        // Kotak putih transparan
+        float boxX = (1280 - 600) / 2;
+        float boxY = 100;
+        game.batch.setColor(1, 1, 1, 0.25f);
+        game.batch.draw(whiteBoxTexture, boxX, boxY);
+        game.batch.setColor(Color.WHITE);
 
-        // Game Statistics Title
-        drawCenteredText("Game Statistics", 490, 1.5f, Color.WHITE);
+        Color darkColor = new Color(0.2f, 0.2f, 0.2f, 1);
 
-        // FireGirl Stats
-        drawCenteredText("FireGirl - Red Diamonds: " + gameFacade.getFireGirlRedDiamonds(),
-            445, 1.2f, Color.RED);
-        drawCenteredText("FireGirl - Score: " + gameFacade.getFireGirlScore(),
-            415, 1.2f, new Color(1f, 0.5f, 0.5f, 1f));
+        // Level Complete!
+        drawCenteredText(font, "Level Complete!", 560, 1.8f, darkColor);
 
-        // WaterBoy Stats
-        drawCenteredText("WaterBoy - Blue Diamonds: " + gameFacade.getWaterBoyBlueDiamonds(),
-            375, 1.2f, Color.CYAN);
-        drawCenteredText("WaterBoy - Score: " + gameFacade.getWaterBoyScore(),
-            345, 1.2f, new Color(0.5f, 0.8f, 1f, 1f));
+        // GAME STATISTICS
+        drawCenteredText(font, "GAME STATISTICS", 520, 1.6f, new Color(0.9f, 0.4f, 0.1f, 1)); // Orange
 
-        // Divider
-        drawCenteredText("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", 315, 1f, Color.GRAY);
+        // Player usernames
+        drawCenteredText(font, player1Username != null ? player1Username : "FireGirl",
+            485, 1.3f, new Color(0.8f, 0.2f, 0.2f, 1)); // Solid red
+        drawCenteredText(font, player2Username != null ? player2Username : "WaterBoy",
+            455, 1.3f, new Color(0.2f, 0.4f, 0.8f, 1)); // Solid blue
 
-        // Total Stats
+        // FireGirl Stats - Red Diamonds
+        drawCenteredText(font, "Red Diamonds: " + gameFacade.getFireGirlRedDiamonds(),
+            420, 1.2f, new Color(0.7f, 0.1f, 0.1f, 1));
+        drawCenteredText(font, "Score: " + gameFacade.getFireGirlScore(),
+            390, 1.2f, new Color(0.8f, 0.3f, 0.3f, 1));
+
+        // WaterBoy Stats - Blue Diamonds
+        drawCenteredText(font, "Blue Diamonds: " + gameFacade.getWaterBoyBlueDiamonds(),
+            355, 1.2f, new Color(0.1f, 0.3f, 0.7f, 1));
+        drawCenteredText(font, "Score: " + gameFacade.getWaterBoyScore(),
+            325, 1.2f, new Color(0.2f, 0.5f, 0.8f, 1));
+
+        // Separator line kecil
+        game.batch.setColor(new Color(0.8f, 0.8f, 0.8f, 1));
+        game.batch.draw(whiteBoxTexture, boxX + 50, 305, 500, 2);
+        game.batch.setColor(Color.WHITE);
+
+        // TOTAL SCORE - Highlight dengan gold
         int totalScore = gameFacade.getFireGirlScore() + gameFacade.getWaterBoyScore();
-        drawCenteredText("Total Score: " + totalScore, 280, 1.3f, Color.YELLOW);
-        drawCenteredText("Time: " + gameFacade.getGameTimeSeconds() + " seconds", 250, 1.1f, Color.YELLOW);
+        drawCenteredText(font, "TOTAL SCORE: " + totalScore, 285, 1.5f,
+            new Color(0.9f, 0.7f, 0.1f, 1)); // Gold solid
 
-        // Save status
-        if (dataSaved) {
-            drawCenteredText("✓ Results saved to database!", 210, 1f, Color.GREEN);
-        } else if (savingData) {
-            drawCenteredText("Saving to backend...", 210, 1f, Color.ORANGE);
-        } else {
-            drawCenteredText("⚠ Offline mode (backend not connected)", 210, 0.9f, Color.GRAY);
-        }
+        // Time
+        drawCenteredText(font, "Time: " + gameFacade.getGameTimeSeconds() + " seconds",
+            250, 1.2f, darkColor);
 
-        // Instructions
+        // Keys information
+        drawCenteredText(font, "Keys: " + gameFacade.getKeysCollected() + "/" + gameFacade.getTotalKeys(),
+            220, 1.1f, darkColor);
+
+
+        // Next action indicator
         int currentLevel = com.finpro.managers.GameStateManager.getInstance().getCurrentLevel();
+        Color actionColor = new Color(0.2f, 0.5f, 0.8f, 1); // Blue solid
+
         if (currentLevel < 3) {
-            drawCenteredText("Press ENTER for Next Level", 160, 1.2f, Color.CYAN);
+            drawCenteredText(font, "Press ENTER for Next Level",
+                150, 1.3f, actionColor);
         } else {
-            drawCenteredText("Press ENTER to Main Menu", 160, 1.2f, Color.CYAN);
+            drawCenteredText(font, "Press ENTER to Return to Main Menu",
+                150, 1.3f, actionColor);
         }
 
-        drawCenteredText("Press M for Main Menu  |  Press ESC to Exit", 120, 1f, Color.LIGHT_GRAY);
-
-        // Credits
-        drawCenteredText("LibGDX + Spring Boot + PostgreSQL", 60, 0.8f, new Color(0.5f, 0.5f, 0.5f, 1f));
+        // Navigation instructions
+        drawCenteredText(font, "Press M for Main Menu  |  Press ESC to Exit",
+            120, 1f, darkColor);
 
         game.batch.end();
 
@@ -185,7 +242,9 @@ public class VictoryScreen implements Screen {
             Gdx.app.exit();
         }
 
-        font.getData().setScale(1f);
+        // Reset font scale
+        font.getData().setScale(1.1f);
+        titleFont.getData().setScale(3f);
     }
 
     @Override
@@ -206,5 +265,8 @@ public class VictoryScreen implements Screen {
     @Override
     public void dispose() {
         font.dispose();
+        titleFont.dispose();
+        backgroundTexture.dispose();
+        whiteBoxTexture.dispose();
     }
 }
