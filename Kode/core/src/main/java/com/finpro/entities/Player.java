@@ -27,16 +27,14 @@ public class Player {
     private boolean isDead;
     private Box standingOnBox = null;
 
-    // Double jump mechanic
     private boolean hasDoubleJump;
     private int jumpCount;
     private static final int MAX_JUMPS = 2;
 
-    // Coyote time
+    // coyote time
     private float coyoteTime = 0;
     private static final float COYOTE_TIME_MAX = 0.1f;
 
-    // STATE PATTERN
     private PlayerState currentState;
 
     public Player(float x, float y, PlayerType type) {
@@ -183,8 +181,7 @@ public class Player {
     }
 
     public void render(SpriteBatch batch) {
-        //Selalu reset color
-        if (isDead) {
+        if (isDead) { // reset color
             batch.setColor(1, 1, 1, 0.5f);
         } else {
             batch.setColor(1, 1, 1, 1);
@@ -192,11 +189,9 @@ public class Player {
 
         batch.draw(texture, x, y, WIDTH, HEIGHT);
 
-        // Reset color setelah draw
         batch.setColor(1, 1, 1, 1);
     }
 
-    // Getters and Setters
     public Rectangle getBounds() { return bounds; }
     public PlayerType getType() { return type; }
     public float getX() { return x; }

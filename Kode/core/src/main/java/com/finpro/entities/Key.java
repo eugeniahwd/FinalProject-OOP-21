@@ -23,7 +23,7 @@ public class Key {
         this.bounds = new Rectangle(x, y, SIZE, SIZE);
         this.bobTimer = 0;
 
-        // Try to load texture, fallback to shape rendering
+        // mekanisme fallback, textur -> renderer
         try {
             this.texture = new Texture("key.png");
             this.useTexture = true;
@@ -36,7 +36,6 @@ public class Key {
 
     public void update(float delta) {
         if (!collected) {
-            // Floating animation
             bobTimer += delta * 3;
         }
     }
@@ -51,14 +50,10 @@ public class Key {
     public void renderShape(ShapeRenderer renderer) {
         if (!collected && !useTexture) {
             float bobOffset = (float) Math.sin(bobTimer) * 5;
-
-            // Draw key shape
-            renderer.setColor(Color.GOLD);
-            // Key head (circle)
+            renderer.setColor(Color.GOLD); // bentuk key
+            // details
             renderer.circle(x + SIZE/2, y + bobOffset + SIZE * 0.7f, SIZE * 0.3f);
-            // Key shaft (rectangle)
             renderer.rect(x + SIZE/2 - 2, y + bobOffset, 4, SIZE * 0.5f);
-            // Key teeth
             renderer.rect(x + SIZE/2 - 6, y + bobOffset, 4, 6);
             renderer.rect(x + SIZE/2 + 2, y + bobOffset, 4, 4);
         }

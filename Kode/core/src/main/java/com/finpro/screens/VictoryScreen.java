@@ -43,19 +43,15 @@ public class VictoryScreen implements Screen {
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1280, 720);
-
-        // Load background
+        // bg
         backgroundTexture = new Texture(Gdx.files.internal("walls.png"));
         backgroundRegion = new TextureRegion(backgroundTexture);
 
-        // Create white box texture for background
         createWhiteBoxTexture();
 
-        // Setup fonts
         font = new BitmapFont();
         titleFont = new BitmapFont();
 
-        // Configure fonts
         font.getData().setScale(1.1f);
         font.setColor(Color.WHITE);
 
@@ -133,8 +129,7 @@ public class VictoryScreen implements Screen {
     @Override
     public void render(float delta) {
         timer += delta;
-
-        // Clear dengan warna solid
+        // clear color
         Gdx.gl.glClearColor(0.95f, 0.95f, 0.95f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -142,17 +137,14 @@ public class VictoryScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-
-        // Draw background FULL tanpa opacity
+        // draw bg
         game.batch.draw(backgroundRegion, 0, 0, 1280, 720);
-
-        // Subtle pulse effect
+        // efek
         float pulse = (float) Math.sin(timer * 3) * 0.15f + 0.85f;
 
-        Color victoryColor = new Color(1f, 0.85f, 0.1f, pulse); // Gold dengan pulse
+        Color victoryColor = new Color(1f, 0.85f, 0.1f, pulse);
         drawCenteredText(titleFont, "VICTORY!", 650, 3.5f, victoryColor);
 
-        // Kotak putih transparan
         float boxX = (1280 - 600) / 2;
         float boxY = 100;
         game.batch.setColor(1, 1, 1, 0.25f);
@@ -161,52 +153,43 @@ public class VictoryScreen implements Screen {
 
         Color darkColor = new Color(0.2f, 0.2f, 0.2f, 1);
 
-        // Level Complete!
         drawCenteredText(font, "Level Complete!", 560, 1.8f, darkColor);
 
-        // GAME STATISTICS
-        drawCenteredText(font, "GAME STATISTICS", 520, 1.6f, new Color(0.9f, 0.4f, 0.1f, 1)); // Orange
+        drawCenteredText(font, "GAME STATISTICS", 520, 1.6f, new Color(0.9f, 0.4f, 0.1f, 1));
 
-        // Player usernames
         drawCenteredText(font, player1Username != null ? player1Username : "FireGirl",
-            485, 1.3f, new Color(0.8f, 0.2f, 0.2f, 1)); // Solid red
+            485, 1.3f, new Color(0.8f, 0.2f, 0.2f, 1));
         drawCenteredText(font, player2Username != null ? player2Username : "WaterBoy",
-            455, 1.3f, new Color(0.2f, 0.4f, 0.8f, 1)); // Solid blue
+            455, 1.3f, new Color(0.2f, 0.4f, 0.8f, 1));
 
-        // FireGirl Stats - Red Diamonds
+        // stats firegirl
         drawCenteredText(font, "Red Diamonds: " + gameFacade.getFireGirlRedDiamonds(),
             420, 1.2f, new Color(0.7f, 0.1f, 0.1f, 1));
         drawCenteredText(font, "Score: " + gameFacade.getFireGirlScore(),
             390, 1.2f, new Color(0.8f, 0.3f, 0.3f, 1));
 
-        // WaterBoy Stats - Blue Diamonds
+        // stats waterboy
         drawCenteredText(font, "Blue Diamonds: " + gameFacade.getWaterBoyBlueDiamonds(),
             355, 1.2f, new Color(0.1f, 0.3f, 0.7f, 1));
         drawCenteredText(font, "Score: " + gameFacade.getWaterBoyScore(),
             325, 1.2f, new Color(0.2f, 0.5f, 0.8f, 1));
 
-        // Separator line kecil
         game.batch.setColor(new Color(0.8f, 0.8f, 0.8f, 1));
         game.batch.draw(whiteBoxTexture, boxX + 50, 305, 500, 2);
         game.batch.setColor(Color.WHITE);
-
-        // TOTAL SCORE - Highlight dengan gold
+        // score total
         int totalScore = gameFacade.getFireGirlScore() + gameFacade.getWaterBoyScore();
         drawCenteredText(font, "TOTAL SCORE: " + totalScore, 285, 1.5f,
             new Color(0.9f, 0.7f, 0.1f, 1)); // Gold solid
-
-        // Time
+        // time
         drawCenteredText(font, "Time: " + gameFacade.getGameTimeSeconds() + " seconds",
             250, 1.2f, darkColor);
-
-        // Keys information
+        // informasi key
         drawCenteredText(font, "Keys: " + gameFacade.getKeysCollected() + "/" + gameFacade.getTotalKeys(),
             220, 1.1f, darkColor);
 
-
-        // Next action indicator
         int currentLevel = com.finpro.managers.GameStateManager.getInstance().getCurrentLevel();
-        Color actionColor = new Color(0.2f, 0.5f, 0.8f, 1); // Blue solid
+        Color actionColor = new Color(0.2f, 0.5f, 0.8f, 1);
 
         if (currentLevel < 3) {
             drawCenteredText(font, "Press ENTER for Next Level",
@@ -216,13 +199,12 @@ public class VictoryScreen implements Screen {
                 150, 1.3f, actionColor);
         }
 
-        // Navigation instructions
         drawCenteredText(font, "Press M for Main Menu  |  Press ESC to Exit",
             120, 1f, darkColor);
 
         game.batch.end();
 
-        // Handle input
+        // input
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             gameFacade.dispose();
 

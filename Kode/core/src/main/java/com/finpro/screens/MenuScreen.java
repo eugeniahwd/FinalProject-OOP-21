@@ -23,11 +23,9 @@ public class MenuScreen implements Screen {
     private GlyphLayout layout;
     private float timer;
 
-    // Button properties
     private Rectangle startButton;
     private boolean isHoveringStart;
 
-    // Constants for better proportion control
     private static final int SCREEN_WIDTH = 1280;
     private static final int SCREEN_HEIGHT = 720;
     private static final float TITLE_SCALE = 4.0f;
@@ -46,14 +44,14 @@ public class MenuScreen implements Screen {
         layout = new GlyphLayout();
         timer = 0;
 
-        // Calculate button size based on screen proportions
+        // ukuran button, referensi size screen
         float buttonWidth = SCREEN_WIDTH * BUTTON_WIDTH_RATIO;
         float buttonHeight = SCREEN_HEIGHT * BUTTON_HEIGHT_RATIO;
 
-        // Initialize button (centered)
+        // inisialisasi button
         startButton = new Rectangle(
             (SCREEN_WIDTH - buttonWidth) / 2,
-            SCREEN_HEIGHT * 0.45f, // Position at 45% from top
+            SCREEN_HEIGHT * 0.45f,
             buttonWidth,
             buttonHeight
         );
@@ -70,7 +68,7 @@ public class MenuScreen implements Screen {
     }
 
     private void drawButton() {
-        // Draw button background
+        // draw bg button
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         if (isHoveringStart) {
             shapeRenderer.setColor(0.2f, 0.6f, 0.8f, 1f);
@@ -78,17 +76,14 @@ public class MenuScreen implements Screen {
             shapeRenderer.setColor(0.15f, 0.45f, 0.65f, 1f);
         }
 
-        // Add rounded corners effect with multiple rectangles
         shapeRenderer.rect(startButton.x, startButton.y, startButton.width, startButton.height);
 
-        // Add subtle inner highlight for depth
         shapeRenderer.setColor(0.25f, 0.7f, 0.9f, 0.3f);
         shapeRenderer.rect(startButton.x + 2, startButton.y + startButton.height - 5,
             startButton.width - 4, 3);
 
         shapeRenderer.end();
 
-        // Draw button border with thickness
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         Gdx.gl.glLineWidth(3);
         shapeRenderer.setColor(Color.CYAN);
@@ -101,7 +96,6 @@ public class MenuScreen implements Screen {
         font.getData().setScale(BUTTON_TEXT_SCALE);
         font.setColor(Color.WHITE);
 
-        // Add subtle text shadow for better readability
         font.setColor(0.1f, 0.1f, 0.1f, 0.8f);
         layout.setText(font, "START GAME");
         float shadowOffset = 2f;
@@ -109,7 +103,6 @@ public class MenuScreen implements Screen {
         float shadowY = startButton.y + (startButton.height + layout.height) / 2 - shadowOffset;
         font.draw(batch, "START GAME", shadowX, shadowY);
 
-        // Main text
         font.setColor(Color.WHITE);
         float textX = startButton.x + (startButton.width - layout.width) / 2;
         float textY = startButton.y + (startButton.height + layout.height) / 2;
@@ -120,7 +113,6 @@ public class MenuScreen implements Screen {
     public void render(float delta) {
         timer += delta;
 
-        // Check mouse hover
         Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mousePos);
         isHoveringStart = startButton.contains(mousePos.x, mousePos.y);
@@ -132,40 +124,35 @@ public class MenuScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
 
-        // Draw button
         drawButton();
 
         batch.begin();
 
-        // Animated title
+        // judul dengan efek
         float pulse = (float) Math.abs(Math.sin(timer * 2)) * 0.5f + 1.5f;
         Color titleColor = new Color(1, pulse, 0, 1);
 
-        // Calculate title and subtitle positions
-        float titleY = SCREEN_HEIGHT * 0.78f; // 78% from top (lebih ke atas sedikit)
-        float subtitleY = titleY - 80; // Kurangi 80px dari title (bukan persentase)
+        // posisi title dan subtitle
+        float titleY = SCREEN_HEIGHT * 0.78f;
+        float subtitleY = titleY - 80;
 
         drawCenteredText("SPARKBOUNDS", titleY, TITLE_SCALE, titleColor);
 
-        // Subtitle - posisi lebih dekat dengan title
+        // subtitle
         drawCenteredText("FireGirl & WaterBoy Adventure", subtitleY, SUBTITLE_SCALE, Color.LIGHT_GRAY);
 
-        // Button text
         drawButtonText();
 
-        // Controls reminder - adjusted positions
         drawCenteredText("FireGirl: WASD  |  WaterBoy: Arrow Keys",
             SCREEN_HEIGHT * 0.28f, 1.0f, Color.GRAY);
         drawCenteredText("Press ESC to Exit",
             SCREEN_HEIGHT * 0.22f, 0.9f, Color.GRAY);
 
-        // Credits
         drawCenteredText("Created with LibGDX",
             SCREEN_HEIGHT * 0.1f, 0.7f, new Color(0.5f, 0.5f, 0.5f, 1f));
 
         batch.end();
-
-        // Handle input
+        // input
         if (isHoveringStart && Gdx.input.justTouched()) {
             game.setScreen(new UsernameInputScreen(game, 1));
         }

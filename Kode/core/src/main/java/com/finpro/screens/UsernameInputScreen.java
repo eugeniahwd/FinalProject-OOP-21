@@ -48,19 +48,18 @@ public class UsernameInputScreen implements Screen {
 
         batch.begin();
 
-        // Title
         font.getData().setScale(2f);
         font.setColor(Color.WHITE);
         font.draw(batch, "Enter Player Names", 440, 620);
 
-        // Level info
+        // level
         font.getData().setScale(1.2f);
         font.setColor(Color.CYAN);
         String levelText = "Level " + selectedLevel + " - " +
             (selectedLevel == 1 ? "Easy" : selectedLevel == 2 ? "Medium" : "Hard");
         font.draw(batch, levelText, 520, 560);
 
-        // Player 1 input
+        // input 1
         font.getData().setScale(1.5f);
         font.setColor(isPlayer1Active ? Color.RED : Color.GRAY);
         font.draw(batch, "FireGirl (Player 1):", 350, 460);
@@ -72,7 +71,7 @@ public class UsernameInputScreen implements Screen {
         }
         font.draw(batch, p1Display, 400, 410);
 
-        // Player 2 input
+        // input 2
         font.setColor(!isPlayer1Active ? Color.BLUE : Color.GRAY);
         font.draw(batch, "WaterBoy (Player 2):", 350, 330);
 
@@ -83,7 +82,6 @@ public class UsernameInputScreen implements Screen {
         }
         font.draw(batch, p2Display, 400, 280);
 
-        // Instructions
         font.getData().setScale(1f);
         font.setColor(Color.YELLOW);
         if (isPlayer1Active) {
@@ -95,13 +93,12 @@ public class UsernameInputScreen implements Screen {
         font.setColor(Color.GRAY);
         font.draw(batch, "Press ESC to go back", 520, 170);
 
-        // Connection status
+        // status connection ke server
         if (testingConnection) {
             font.setColor(Color.ORANGE);
             font.draw(batch, "Testing connection to server...", 450, 140);
         }
 
-        // Show when both ready
         if (!player1Name.isEmpty() && !player2Name.isEmpty()) {
             font.getData().setScale(1.2f);
             font.setColor(Color.GREEN);
@@ -110,23 +107,20 @@ public class UsernameInputScreen implements Screen {
 
         batch.end();
 
-        // Handle input (jika tidak sedang test connection)
         if (!testingConnection) {
             handleInput();
         }
 
-        // Reset font
         font.getData().setScale(1f);
     }
 
     private void handleInput() {
-        // ESC - back to menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.setScreen(new MenuScreen(game));
             return;
         }
 
-        // ENTER - switch to next player or start
+        // next player atau start pake enter
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             if (isPlayer1Active && !player1Name.isEmpty()) {
                 isPlayer1Active = false;
@@ -136,15 +130,14 @@ public class UsernameInputScreen implements Screen {
             return;
         }
 
-        // SPACE - start if both names entered
+        // mulai kalo 2 usn udah, space
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             if (!player1Name.isEmpty() && !player2Name.isEmpty()) {
                 startGame();
             }
             return;
         }
-
-        // Backspace - delete character
+        // hapus characte, backspace
         if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE)) {
             if (isPlayer1Active && player1Name.length() > 0) {
                 player1Name = player1Name.substring(0, player1Name.length() - 1);
@@ -153,8 +146,7 @@ public class UsernameInputScreen implements Screen {
             }
             return;
         }
-
-        // Character input (A-Z)
+        // input huruf
         for (int i = Input.Keys.A; i <= Input.Keys.Z; i++) {
             if (Gdx.input.isKeyJustPressed(i)) {
                 char c = (char) ('a' + (i - Input.Keys.A));
@@ -165,8 +157,7 @@ public class UsernameInputScreen implements Screen {
                 }
             }
         }
-
-        // Number input (0-9)
+        // input angka
         for (int i = Input.Keys.NUM_0; i <= Input.Keys.NUM_9; i++) {
             if (Gdx.input.isKeyJustPressed(i)) {
                 char c = (char) ('0' + (i - Input.Keys.NUM_0));
@@ -184,14 +175,12 @@ public class UsernameInputScreen implements Screen {
         System.out.println("Player 1 (FireGirl): " + player1Name);
         System.out.println("Player 2 (WaterBoy): " + player2Name);
         System.out.println("Level: " + selectedLevel);
-
-        // Store usernames in GameStateManager
+        // nyimpen usn di gsm
         com.finpro.managers.GameStateManager.getInstance()
             .setPlayerUsernames(player1Name, player2Name);
 
         testingConnection = true;
 
-        // Test connection terlebih dahulu
         ApiService apiService = ApiService.getInstance();
 
         apiService.testConnection(new ApiService.ApiCallback() {
@@ -229,7 +218,6 @@ public class UsernameInputScreen implements Screen {
                     UUID sessionId = apiService.getCurrentSessionId();
                     System.out.println("Session ID: " + sessionId);
 
-                    // Start actual game
                     Gdx.app.postRunnable(() -> {
                         com.finpro.managers.GameStateManager.getInstance()
                             .startLevel(selectedLevel);
@@ -241,7 +229,6 @@ public class UsernameInputScreen implements Screen {
                     System.err.println("✗ Backend error: " + error);
                     System.out.println("⚠ Starting game anyway...");
 
-                    // Start game even if API fails
                     Gdx.app.postRunnable(() -> {
                         com.finpro.managers.GameStateManager.getInstance()
                             .startLevel(selectedLevel);

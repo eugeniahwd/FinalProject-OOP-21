@@ -15,7 +15,7 @@ import com.finpro.Main;
 import com.finpro.facade.GameFacade;
 
 public class GameScreen implements Screen {
-    private Main game;  // FIXED: Changed from Game to Main
+    private Main game;
     private OrthographicCamera camera;
     private ShapeRenderer shapeRenderer;
     private BitmapFont font;
@@ -29,7 +29,6 @@ public class GameScreen implements Screen {
     private String player1Username;
     private String player2Username;
 
-    // FIXED: Changed parameter type from Game to Main
     public GameScreen(Main game, int level, String player1Username, String player2Username) {
         this.game = game;
         this.level = level;
@@ -69,7 +68,6 @@ public class GameScreen implements Screen {
             game.setScreen(new GameOverScreen(game, level, player1Username, player2Username));
         }
 
-        // FIXED: Pass Main instead of Game
         if (!levelCompleteTriggered && gameFacade.checkLevelComplete()) {
             levelCompleteTriggered = true;
             game.setScreen(new VictoryScreen(game, gameFacade, player1Username, player2Username));
@@ -77,7 +75,7 @@ public class GameScreen implements Screen {
     }
 
     private void updateCamera() {
-        // Camera follows the midpoint between both players
+        // kamera ngikutin tengah player
         float fireGirlX = gameFacade.getFireGirl().getX();
         float waterBoyX = gameFacade.getWaterBoy().getX();
         float fireGirlY = gameFacade.getFireGirl().getY();
@@ -86,12 +84,10 @@ public class GameScreen implements Screen {
         float targetX = (fireGirlX + waterBoyX) / 2 + 20;
         float targetY = (fireGirlY + waterBoyY) / 2 + 25;
 
-        // Smooth camera movement
         float lerpSpeed = 0.1f;
         camera.position.x += (targetX - camera.position.x) * lerpSpeed;
         camera.position.y += (targetY - camera.position.y) * lerpSpeed;
 
-        // Clamp camera to world bounds
         float halfWidth = camera.viewportWidth / 2;
         float halfHeight = camera.viewportHeight / 2;
 
@@ -102,10 +98,8 @@ public class GameScreen implements Screen {
     private void renderUI() {
         uiBatch.begin();
 
-        // Level info
         font.setColor(Color.WHITE);
         font.draw(uiBatch, "Level " + level, 20, Gdx.graphics.getHeight() - 20);
-
         // timer
         font.setColor(Color.YELLOW);
         int minutes = gameFacade.getGameTimeSeconds() / 60;
@@ -113,12 +107,12 @@ public class GameScreen implements Screen {
         String timeText = String.format("Time: %02d:%02d", minutes, seconds);
         font.draw(uiBatch, timeText, 20, Gdx.graphics.getHeight() - 50);
 
-        // Keys collected
+        // keys yg di collect
         String keyText = "Keys: " + gameFacade.getKeysCollected() + "/" + gameFacade.getTotalKeys();
         font.setColor(gameFacade.isDoorUnlocked() ? Color.GREEN : Color.YELLOW);
         font.draw(uiBatch, keyText, 20, Gdx.graphics.getHeight() - 80);
 
-        // Door status
+        // pintu locked/unlocked
         if (gameFacade.isDoorUnlocked()) {
             font.setColor(Color.GREEN);
             font.draw(uiBatch, "Door UNLOCKED!", 20, Gdx.graphics.getHeight() - 110);
@@ -132,7 +126,7 @@ public class GameScreen implements Screen {
     }
 
     private void handleInput() {
-        // FireGirl controls (WASD)
+        // firegirl control wad
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             gameFacade.getFireGirl().moveLeft();
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
@@ -145,7 +139,7 @@ public class GameScreen implements Screen {
             gameFacade.getFireGirl().jump();
         }
 
-        // WaterBoy controls (Arrow Keys)
+        // waterboy control arrow keys
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             gameFacade.getWaterBoy().moveLeft();
         } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
@@ -158,19 +152,19 @@ public class GameScreen implements Screen {
             gameFacade.getWaterBoy().jump();
         }
 
-        // Quick restart
+        // restart
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            // Use GameStateManager for restart
+            // pake gsm
             com.finpro.managers.GameStateManager gsm = com.finpro.managers.GameStateManager.getInstance();
             if (gsm.hasActiveSession()) {
                 gsm.startLevel(level);
             } else {
-                // Fallback if session lost
+                // kalo session lost
                 game.setScreen(new GameScreen(game, level, player1Username, player2Username));
             }
         }
 
-        // Back to menu
+        // balik ke menu esc
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             com.finpro.managers.GameStateManager.getInstance().resetSession();
             game.setScreen(new MenuScreen(game));

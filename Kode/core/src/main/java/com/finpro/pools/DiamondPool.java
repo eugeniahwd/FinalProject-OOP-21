@@ -13,7 +13,7 @@ public class DiamondPool {
         available = new ArrayList<>();
         inUse = new ArrayList<>();
 
-        // Pre-create diamonds
+        // bikin diamond
         for (int i = 0; i < INITIAL_CAPACITY; i++) {
             available.add(new Diamond(0, 0, Diamond.DiamondType.RED));
         }
@@ -23,10 +23,9 @@ public class DiamondPool {
         Diamond diamond;
 
         if (available.isEmpty()) {
-            // Create new if pool is empty
+            // bikin baru
             diamond = new Diamond(x, y, type);
-        } else {
-            // Reuse from pool
+        } else { // ngambil dari pool
             diamond = available.remove(available.size() - 1);
             diamond.reset(x, y, type);
         }
@@ -51,7 +50,6 @@ public class DiamondPool {
     }
 
     public void dispose() {
-        // Dispose all diamonds
         for (Diamond diamond : available) {
             diamond.dispose();
         }

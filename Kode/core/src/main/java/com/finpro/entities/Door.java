@@ -19,7 +19,7 @@ public class Door {
     }
 
     public void render(ShapeRenderer renderer) {
-        // Main door body
+        // base pintu
         if (locked) {
             renderer.setColor(Color.valueOf("5D4037"));
         } else {
@@ -27,36 +27,38 @@ public class Door {
         }
         renderer.rect(x, y, WIDTH, HEIGHT);
 
-        // Wood texture lines
+        // garis2 di wood
         renderer.setColor(Color.valueOf("4E342E"));
         for (int i = 1; i < 6; i++) {
             float lineY = y + (HEIGHT / 6) * i;
             renderer.rectLine(x + 5, lineY, x + WIDTH - 5, lineY, 2);
         }
 
-        // Vertical center line
-        renderer.rectLine(x + WIDTH/2, y + 5, x + WIDTH/2, y + HEIGHT - 5, 3);
+        // garis vertikal 2 biji
+        renderer.rectLine(x + 5, y + 5, x + 5, y + HEIGHT - 5, 3);
+        renderer.rectLine(x + 55, y + 5, x + 55, y + HEIGHT - 5, 3);
+
     }
 
     public void renderLine(ShapeRenderer renderer) {
-        // Door frame
+        // frame pintu
         renderer.setColor(Color.valueOf("3E2723"));
         renderer.rect(x, y, WIDTH, HEIGHT);
     }
 
     public void renderHandle(ShapeRenderer renderer) {
-        // Door handle
+        // handle
         renderer.setColor(Color.GOLD);
         float handleX = x + WIDTH - 12;
         float handleY = y + HEIGHT / 2;
         renderer.circle(handleX, handleY, 4);
 
-        // Lock indicator
+        // indikator di-lock
         if (locked) {
             renderer.setColor(Color.RED);
             renderer.circle(x + WIDTH/2, y + HEIGHT - 15, 6);
 
-            // Keyhole
+            // keyhole
             renderer.setColor(Color.valueOf("2C1810"));
             renderer.circle(x + WIDTH/2, y + HEIGHT - 15, 3);
         } else {

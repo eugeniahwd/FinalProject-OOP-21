@@ -26,11 +26,10 @@ public class Obstacle {
 
         this.visualBounds = new Rectangle(x, y, visualWidth, visualHeight);
 
-
         float collisionWidth = 60f;
         float collisionHeight = 30f;
 
-        // collision di tengah visual
+        // collision di tengah
         float collisionX = x + (visualWidth - collisionWidth) / 2;
         float collisionY = y + (visualHeight - collisionHeight) / 2;
 
@@ -40,18 +39,15 @@ public class Obstacle {
     }
 
     public void render(SpriteBatch batch) {
-        // Render pake skala visual
         batch.draw(texture,
             visualBounds.x, visualBounds.y,
             visualBounds.width, visualBounds.height);
     }
 
-    // collision detection
     public Rectangle getBounds() {
         return collisionBounds;
     }
 
-    // debug rendering
     public Rectangle getVisualBounds() {
         return visualBounds;
     }
@@ -60,9 +56,7 @@ public class Obstacle {
         return type;
     }
 
-    public Texture getTexture() {
-        return texture;
-    }
+    public Texture getTexture() { return texture; }
 
     public void dispose() {
         texture.dispose();

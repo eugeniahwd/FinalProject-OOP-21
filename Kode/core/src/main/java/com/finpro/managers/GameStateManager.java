@@ -7,7 +7,7 @@ import com.finpro.screens.MenuScreen;
 public class GameStateManager {
     private static GameStateManager instance;
     private Main game;
-    private int currentLevel = 1; // 1=Easy, 2=Medium, 3=Hard
+    private int currentLevel = 1;
 
     private String player1Username;
     private String player2Username;
@@ -25,18 +25,17 @@ public class GameStateManager {
         this.game = game;
     }
 
-    // Set username pas game dimulai
+    // set username pas start
     public void setPlayerUsernames(String player1, String player2) {
         this.player1Username = player1;
         this.player2Username = player2;
         System.out.println("GameStateManager: Usernames set - P1: " + player1 + ", P2: " + player2);
     }
 
-    // Start level with current usernames
     public void startLevel(int level) {
         this.currentLevel = level;
 
-        // kalo username belom diset, redirect ke menu
+        // kalo username belom di set, balik ke menu
         if (player1Username == null || player2Username == null) {
             System.err.println("⚠ GameStateManager: Usernames not set! Redirecting to menu.");
             game.setScreen(new MenuScreen(game));
@@ -48,21 +47,21 @@ public class GameStateManager {
         game.setScreen(new GameScreen(game, level, player1Username, player2Username));
     }
 
-    // Go to next level
+    // ke next level
     public void nextLevel() {
         currentLevel++;
         if (currentLevel <= 3) {
             System.out.println("GameStateManager: Advancing to level " + currentLevel);
             startLevel(currentLevel);
         } else {
-            // All levels completed, back to menu
+            // level udah complete, balik ke menu
             System.out.println("GameStateManager: All levels completed! Back to menu.");
             game.setScreen(new MenuScreen(game));
             resetSession();
         }
     }
 
-    // Reset session (clear usernames and level)
+    // reset username dan level
     public void resetSession() {
         System.out.println("GameStateManager: Resetting session");
         currentLevel = 1;
@@ -70,7 +69,6 @@ public class GameStateManager {
         player2Username = null;
     }
 
-    // Getters
     public int getCurrentLevel() {
         return currentLevel;
     }

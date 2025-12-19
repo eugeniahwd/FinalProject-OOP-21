@@ -12,13 +12,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
 public class ApiService {
     private static final String BASE_URL = "http://localhost:8080/api";
     private static ApiService instance;
     private Gson gson;
 
-    // Current session data
+    // current session data
     private UUID currentSessionId;
     private String player1Username;
     private String player2Username;
@@ -35,10 +34,6 @@ public class ApiService {
         return instance;
     }
 
-    /**
-     * Start new game session menggunakan Native Java HttpClient
-     * Lebih reliable daripada LibGDX Net
-     */
     public void startGame(String player1Username, String player2Username, int levelNumber,
                           final ApiCallback callback) {
         this.player1Username = player1Username;
@@ -51,10 +46,10 @@ public class ApiService {
             "\",\"player2Username\":\"" + player2Username +
             "\",\"levelNumber\":" + levelNumber + "}");
 
-        // Generate offline session ID sebagai backup
+        // offline session id
         final String offlineSessionId = "OFFLINE-" + UUID.randomUUID().toString().substring(0, 8);
 
-        // Gunakan thread terpisah untuk network call
+        // thread beda
         new Thread(() -> {
             try {
                 URL url = new URL(BASE_URL + "/game/start");
@@ -67,7 +62,7 @@ public class ApiService {
                 conn.setReadTimeout(5000);
                 conn.setDoOutput(true);
 
-                // Create JSON body
+                // bikin json
                 JsonObject requestBody = new JsonObject();
                 requestBody.addProperty("player1Username", player1Username);
                 requestBody.addProperty("player2Username", player2Username);
@@ -75,18 +70,15 @@ public class ApiService {
 
                 String jsonBody = gson.toJson(requestBody);
 
-                // Send request
                 conn.getOutputStream().write(jsonBody.getBytes("UTF-8"));
 
                 int statusCode = conn.getResponseCode();
                 String response;
 
                 if (statusCode >= 200 && statusCode < 300) {
-                    // Success
-                    response = new String(conn.getInputStream().readAllBytes(), "UTF-8");
+                    response = new String(conn.getInputStream().readAllBytes(), "UTF-8"); // sukses
                 } else {
-                    // Error
-                    response = new String(conn.getErrorStream().readAllBytes(), "UTF-8");
+                    response = new String(conn.getErrorStream().readAllBytes(), "UTF-8"); // error
                 }
 
                 conn.disconnect();
@@ -94,7 +86,7 @@ public class ApiService {
                 final int finalStatusCode = statusCode;
                 final String finalResponse = response;
 
-                // Handle response di main thread
+                // handle response di main thread
                 Gdx.app.postRunnable(() -> {
                     System.out.println("=== API Response: Start Game ===");
                     System.out.println("Status: " + finalStatusCode);
@@ -104,7 +96,6 @@ public class ApiService {
                         try {
                             JsonObject json = gson.fromJson(finalResponse, JsonObject.class);
 
-                            // Extract sessionId
                             if (json.has("sessionId")) {
                                 String sessionIdStr = json.get("sessionId").getAsString();
                                 currentSessionId = UUID.fromString(sessionIdStr);
@@ -121,13 +112,12 @@ public class ApiService {
                         }
                     }
 
-                    // Jika gagal, coba dengan LibGDX sebagai fallback
+                    // kalo fail, libgdx jadi fallback
                     System.err.println("⚠ Native HttpClient failed, trying LibGDX...");
                     startGameWithLibGDX(player1Username, player2Username, levelNumber, callback, offlineSessionId);
                 });
 
             } catch (Exception e) {
-                // Network error
                 Gdx.app.postRunnable(() -> {
                     System.err.println("✗ Native HttpClient Exception: " + e.getClass().getName() + ": " + e.getMessage());
                     System.err.println("⚠ Trying LibGDX network...");
@@ -137,20 +127,16 @@ public class ApiService {
         }).start();
     }
 
-    /**
-     * Fallback: Gunakan LibGDX network
-     */
     private void startGameWithLibGDX(String player1Username, String player2Username, int levelNumber,
                                      ApiCallback callback, String offlineSessionId) {
-        // Create request body
+        // bikin request body
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("player1Username", player1Username);
         requestBody.put("player2Username", player2Username);
         requestBody.put("levelNumber", levelNumber);
 
         String jsonBody = gson.toJson(requestBody);
-
-        // Build HTTP request dengan LibGDX
+        // buat http request pake libgdx
         HttpRequestBuilder builder = new HttpRequestBuilder();
         Net.HttpRequest request = builder
             .newRequest()
@@ -161,8 +147,7 @@ public class ApiService {
             .timeout(10000)
             .content(jsonBody)
             .build();
-
-        // Send request
+        // kirim request
         Gdx.net.sendHttpRequest(request, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
@@ -189,7 +174,7 @@ public class ApiService {
                     }
                 }
 
-                // Jika LibGDX juga gagal, gunakan offline mode
+                // kalo libgdx fail, fallback ke offline session
                 System.err.println("⚠ Both methods failed, using OFFLINE MODE");
                 useOfflineMode(offlineSessionId, callback);
             }
@@ -208,17 +193,12 @@ public class ApiService {
         });
     }
 
-    /**
-     * Gunakan offline mode dengan generated session ID
-     */
     private void useOfflineMode(String offlineSessionId, ApiCallback callback) {
         this.isOfflineMode = true;
-
-        // Generate UUID untuk offline session
+        // generate uuid untk offline sesh
         try {
             currentSessionId = UUID.fromString(offlineSessionId);
         } catch (IllegalArgumentException e) {
-            // Fallback ke UUID random
             currentSessionId = UUID.randomUUID();
         }
 
@@ -229,7 +209,6 @@ public class ApiService {
         System.out.println("⚠ Results will be logged locally only");
         System.out.println("⚠ ===========================================");
 
-        // Buat response JSON manual untuk callback
         JsonObject fakeResponse = new JsonObject();
         fakeResponse.addProperty("sessionId", currentSessionId.toString());
         fakeResponse.addProperty("status", "offline");
@@ -252,16 +231,13 @@ public class ApiService {
         System.out.println("Player 1: " + player1Username);
         System.out.println("Player 2: " + player2Username);
         System.out.println("Session ID: " + currentSessionId);
-
-        // Pastikan ada session ID
+        // cek session id
         if (currentSessionId == null) {
             System.err.println("✗ ERROR: No session ID! Generating new one...");
             currentSessionId = UUID.randomUUID();
             isOfflineMode = true;
             System.out.println("⚠ Generated new session ID: " + currentSessionId);
         }
-
-        // Jika offline mode, hanya log tanpa kirim ke server
         if (isOfflineMode) {
             System.out.println("⚠ OFFLINE MODE: Results logged locally only");
             System.out.println("  FireGirl: " + player1RedDiamonds + " red diamonds, " + player1Score + " score");
@@ -269,7 +245,6 @@ public class ApiService {
             System.out.println("  Keys: " + keysCollected + "/" + totalKeys + ", Time: " + timeSeconds + "s");
             System.out.println("✓ Game completed (offline mode)");
 
-            // Simulasi callback success
             JsonObject fakeResponse = new JsonObject();
             fakeResponse.addProperty("status", "saved_locally");
             fakeResponse.addProperty("message", "Results saved locally (offline mode)");
@@ -278,7 +253,6 @@ public class ApiService {
             return;
         }
 
-        // Jika online, coba kirim ke server dengan Native HttpClient
         new Thread(() -> {
             try {
                 URL url = new URL(BASE_URL + "/sessions/" + currentSessionId + "/finish");
@@ -290,7 +264,6 @@ public class ApiService {
                 conn.setReadTimeout(3000);
                 conn.setDoOutput(true);
 
-                // Create request body
                 JsonObject requestBody = new JsonObject();
                 requestBody.addProperty("player1RedDiamonds", player1RedDiamonds);
                 requestBody.addProperty("player1Score", player1Score);
@@ -302,7 +275,6 @@ public class ApiService {
 
                 String jsonBody = gson.toJson(requestBody);
 
-                // Log untuk debugging
                 System.out.println("URL: " + url.toString());
                 System.out.println("Body: " + jsonBody);
                 System.out.println("Stats:");
@@ -310,7 +282,6 @@ public class ApiService {
                 System.out.println("  WaterBoy: " + player2BlueDiamonds + " diamonds, " + player2Score + " score");
                 System.out.println("  Keys: " + keysCollected + "/" + totalKeys + ", Time: " + timeSeconds + "s");
 
-                // Send request
                 conn.getOutputStream().write(jsonBody.getBytes("UTF-8"));
 
                 int statusCode = conn.getResponseCode();
@@ -327,7 +298,6 @@ public class ApiService {
                 final int finalStatusCode = statusCode;
                 final String finalResponse = response;
 
-                // Handle response di main thread
                 Gdx.app.postRunnable(() -> {
                     System.out.println("=== API Response: Finish Game ===");
                     System.out.println("Status: " + finalStatusCode);
@@ -348,8 +318,7 @@ public class ApiService {
                 });
 
             } catch (Exception e) {
-                // Network error
-                Gdx.app.postRunnable(() -> {
+                Gdx.app.postRunnable(() -> { // network error
                     System.err.println("✗ Failed to save to server: " + e.getMessage());
                     System.out.println("⚠ Results saved locally only");
 
@@ -362,9 +331,6 @@ public class ApiService {
         }).start();
     }
 
-    /**
-     * Test connection to backend server
-     */
     public void testConnection(final ApiCallback callback) {
         System.out.println("=== Testing Backend Connection ===");
         System.out.println("URL: " + BASE_URL + "/test");
@@ -402,11 +368,7 @@ public class ApiService {
         }).start();
     }
 
-    /**
-     * Get leaderboard from backend
-     */
     public void getLeaderboard(final ApiCallback callback) {
-        // Jika offline mode, return empty leaderboard
         if (isOfflineMode) {
             System.out.println("⚠ OFFLINE MODE: Returning empty leaderboard");
             JsonObject fakeResponse = new JsonObject();
@@ -443,16 +405,13 @@ public class ApiService {
             } catch (Exception e) {
                 Gdx.app.postRunnable(() -> {
                     System.err.println("✗ Failed to get leaderboard: " + e.getMessage());
-                    // Return empty array jika gagal
+                    // return empty array kalo gagal
                     callback.onSuccess("[]");
                 });
             }
         }).start();
     }
 
-    /**
-     * Clear current session
-     */
     public void clearSession() {
         System.out.println("ApiService: Clearing session");
         currentSessionId = null;
@@ -460,8 +419,6 @@ public class ApiService {
         player2Username = null;
         isOfflineMode = false;
     }
-
-    // ========== GETTERS ==========
 
     public UUID getCurrentSessionId() {
         return currentSessionId;
@@ -479,23 +436,14 @@ public class ApiService {
         return isOfflineMode;
     }
 
-    /**
-     * Manual set session ID (for testing)
-     */
     public void setSessionId(UUID sessionId) {
         this.currentSessionId = sessionId;
     }
 
-    /**
-     * Set offline mode manually
-     */
     public void setOfflineMode(boolean offline) {
         this.isOfflineMode = offline;
     }
 
-    /**
-     * Callback interface for async API calls
-     */
     public interface ApiCallback {
         void onSuccess(String response);
         void onError(String error);

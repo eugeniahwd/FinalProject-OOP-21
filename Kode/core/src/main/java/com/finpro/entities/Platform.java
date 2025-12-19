@@ -25,23 +25,20 @@ public class Platform {
         this.bounds = new Rectangle(x, y, width, height);
     }
 
-    // Constructor overload untuk backward compatibility
+    // biar yg baru dan lama compatible
     public Platform(float x, float y, float width) {
         this(x, y, width, false);
     }
 
     public void render(ShapeRenderer renderer) {
-        // Base wood color (dark brown)
-        renderer.setColor(Color.valueOf("8B4513"));
+        // warna dasar
+        renderer.setColor(Color.valueOf("8B4513")); // coklat
         renderer.rect(x, y, width, height);
 
-        // Wood grain pattern (slightly darker lines)
-        renderer.setColor(Color.valueOf("654321"));
+        renderer.setColor(Color.valueOf("654321")); // detail
 
-        if (isVertical) {
-            // Vertical platform - horizontal wood grains
-            // 5-6 horizontal lines untuk wood grain effect
-            for (int i = 1; i <= 6; i++) {
+        if (isVertical) { // box vertical
+            for (int i = 1; i <= 6; i++) { // detail horizontal
                 float grainY = y + (i * (height / 7));
                 renderer.rectLine(
                     x + 3, grainY,
@@ -59,10 +56,8 @@ public class Platform {
                     1.8f
                 );
             }
-        } else {
-            // Horizontal platform - vertical wood grains
-            // 10-12 vertical lines untuk wood grain effect
-            for (int i = 1; i <= 10; i++) {
+        } else { // box horizontal
+            for (int i = 1; i <= 10; i++) { // detail vertical
                 float grainX = x + (i * (width / 11));
                 renderer.rectLine(
                     grainX, y + 3,
@@ -71,7 +66,6 @@ public class Platform {
                 );
             }
 
-            // Horizontal plank divisions
             renderer.setColor(Color.valueOf("5D4037"));
             for (int i = 1; i <= 3; i++) {
                 float plankY = y + (i * (height / 4));
@@ -83,15 +77,13 @@ public class Platform {
             }
         }
 
-        // Wood knots (circles that look like wood knots)
+        // details lagi
         renderer.setColor(Color.valueOf("3E2723"));
         if (isVertical) {
-            // 3 knots buat platform vertikal
             renderer.circle(x + width/2, y + height/4, 2f);
             renderer.circle(x + width/3, y + height/2, 1.8f);
             renderer.circle(x + 2*width/3, y + 3*height/4, 2.2f);
         } else {
-            // 3 knots buat platform horizontal
             renderer.circle(x + width/4, y + height/2, 2f);
             renderer.circle(x + width/2, y + height/2, 2.5f);
             renderer.circle(x + 3*width/4, y + height/2, 1.8f);
@@ -109,7 +101,6 @@ public class Platform {
         return bounds;
     }
 
-    // Getter methods
     public float getX() { return x; }
     public float getY() { return y; }
     public float getWidth() { return width; }

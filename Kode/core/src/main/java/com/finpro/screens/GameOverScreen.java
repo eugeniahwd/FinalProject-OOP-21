@@ -57,24 +57,19 @@ public class GameOverScreen implements Screen {
 
         batch.begin();
 
-        // Pulsing effect for GAME OVER text
-        float pulse = (float) Math.abs(Math.sin(timer * 3));
+        float pulse = (float) Math.abs(Math.sin(timer * 3)); // efek untuk font
 
-        // GAME OVER text (centered)
         Color gameOverColor = new Color(1, pulse * 0.3f, 0, 1);
         drawCenteredText("GAME OVER!", 500, 4f, gameOverColor);
 
-        // Death message (centered)
         drawCenteredText("A player touched the wrong element!", 410, 1.8f, Color.WHITE);
 
-        // Instructions (centered)
         drawCenteredText("Press R to Retry Level " + currentLevel, 320, 1.5f, Color.YELLOW);
         drawCenteredText("Press M for Main Menu", 280, 1.5f, Color.YELLOW);
         drawCenteredText("Press ESC to Exit", 240, 1.5f, Color.YELLOW);
 
         batch.end();
-
-        // Handle input
+        // input
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             com.finpro.managers.GameStateManager gsm = com.finpro.managers.GameStateManager.getInstance();
             if (gsm.hasActiveSession()) {
@@ -90,8 +85,6 @@ public class GameOverScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
-
-        // Reset font scale
         font.getData().setScale(1f);
     }
 

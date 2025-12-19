@@ -11,7 +11,7 @@ public class Box {
     private static final float GRAVITY = -1100;
     private static final float MAX_FALL_SPEED = -600;
 
-    // Moving platform properties
+    // properti moving box
     private float startX, endX;
     private float startY, endY;
     private float moveSpeed = 100;
@@ -34,7 +34,7 @@ public class Box {
         this.isVertical = false;
     }
 
-    // Constructor horizontal moving box
+    // constructor moving box horizontal
     public Box(float x, float y, float startX, float endX) {
         this.x = x;
         this.y = y;
@@ -51,7 +51,7 @@ public class Box {
         this.movingRight = true;
     }
 
-    // Constructor vertical moving box
+    // constructor moving box vertical
     public Box(float x, float y, float startY, float endY, boolean isVertical) {
         this.x = x;
         this.y = y;
@@ -72,11 +72,11 @@ public class Box {
     }
 
     public void update(float delta) {
+        // gerak pake velocity
         if (isMovingPlatform) {
             if (isVertical) {
-                // velocity vertical movement
                 if (movingUp) {
-                    velocityY = moveSpeed;
+                    velocityY = moveSpeed; // vertical
                     if (y >= endY) {
                         y = endY;
                         movingUp = false;
@@ -90,9 +90,8 @@ public class Box {
                 }
                 velocityX = 0;
             } else {
-                // velocity horizontal movement
                 if (movingRight) {
-                    velocityX = moveSpeed;
+                    velocityX = moveSpeed; // horizontal
                     if (x >= endX) {
                         x = endX;
                         movingRight = false;
@@ -115,19 +114,18 @@ public class Box {
     }
 
     public void render(ShapeRenderer renderer) {
-        // Color berbeda untuk vertical moving platform
         if (isMovingPlatform) {
             if (isVertical) {
-                renderer.setColor(Color.valueOf("9C27B0")); //ungu
+                renderer.setColor(Color.valueOf("9C27B0")); // ungu
             } else {
-                renderer.setColor(Color.valueOf("FF9800")); //oren
+                renderer.setColor(Color.valueOf("FF9800")); // orange
             }
         } else {
             renderer.setColor(Color.valueOf("8B4513"));
         }
         renderer.rect(x, y, SIZE, SIZE);
 
-        // Wood texture
+        // texture wood
         if (isMovingPlatform) {
             if (isVertical) {
                 renderer.setColor(Color.valueOf("7B1FA2"));
@@ -148,30 +146,28 @@ public class Box {
             renderer.rectLine(lineX, y + 2, lineX, y + SIZE - 2, 2);
         }
 
-        // Direction arrow
+        // arrow arah
         if (isMovingPlatform) {
             renderer.setColor(Color.WHITE);
 
-            if (isVertical) {
-                // VERTICAL ARROW
+            if (isVertical) { // vertical
                 float arrowX = x + SIZE/2;
                 if (movingUp) {
-                    // Arrow pointing UP
+                    // ^
                     renderer.triangle(
                         arrowX, y + SIZE - 10,
                         arrowX - 5, y + SIZE - 15,
                         arrowX + 5, y + SIZE - 15
                     );
                 } else {
-                    // Arrow pointing DOWN
+                    // v
                     renderer.triangle(
                         arrowX, y + 10,
                         arrowX - 5, y + 15,
                         arrowX + 5, y + 15
                     );
                 }
-            } else {
-                // HORIZONTAL ARROW (existing)
+            } else { // horizontal
                 float arrowY = y + SIZE/2;
                 if (movingRight) {
                     renderer.triangle(
@@ -203,7 +199,6 @@ public class Box {
         renderer.rect(x, y, SIZE, SIZE);
     }
 
-    // Getters
     public Rectangle getBounds() { return bounds; }
     public float getVelocityY() { return velocityY; }
     public float getVelocityX() { return velocityX; }
@@ -212,7 +207,6 @@ public class Box {
     public boolean isMovingPlatform() { return isMovingPlatform; }
     public boolean isVertical() { return isVertical; }
 
-    // Setters
     public void setPosition(float x, float y) {
         this.x = x;
         this.y = y;
